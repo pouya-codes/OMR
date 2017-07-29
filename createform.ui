@@ -132,7 +132,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>270</string>
+          <string>275</string>
          </property>
         </widget>
        </item>
@@ -270,7 +270,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>36</string>
+          <string>42</string>
          </property>
         </widget>
        </item>
@@ -283,7 +283,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>40</string>
+          <string>90</string>
          </property>
         </widget>
        </item>
@@ -328,7 +328,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>5</string>
+          <string>4</string>
          </property>
         </widget>
        </item>
@@ -386,7 +386,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>115</string>
+            <string>92</string>
            </property>
           </widget>
          </item>
@@ -406,7 +406,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>-2</string>
+            <string>-14</string>
            </property>
           </widget>
          </item>
@@ -430,7 +430,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>150</string>
+            <string>100</string>
            </property>
           </widget>
          </item>

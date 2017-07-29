@@ -22,13 +22,15 @@ public:
     cv::Mat DrawChoices (int referenceEye,int distanceWidth,int distanceHeight,int choiceWidth,int choiceHeight,
                          int choiceNumber, int distanceChoiceChoice, int numberOfQuestions, int columnDistance,
                          int barcodeX_,int barcodeY_,int barcodeWidth_,int barcodeHeight_) ;
-    cv::Mat ProcessImage (cv::Mat img_process);
+    cv::Mat ProcessImage (cv::Mat img_process,QString table_name,std::string out_path_orginal,std::string out_path_processd,std::string out_path_error);
+    bool createTable(QString tableName) ;
+    bool deleteTable(QString tableName) ;
 
 
 private :
     int RemoveColorsDialog () ;
     int findSquares( const cv::Mat& image, std::vector<std::vector<cv::Point> >& squares,cv::Rect area );
-    void drawSquares( cv::Mat& image, cv::vector<cv::Rect> rect_vector );
+    void drawSquares( cv::Mat& image, cv::vector<cv::Rect> rect_vector , cv::Scalar color =cv::Scalar(0,255,0) );
     void sortSquares( const std::vector<std::vector<cv::Point> >& squares ,
                              std::vector<cv::Rect>& rect_vector , eye_pose pose );
     double findAngle(const std::vector<std::vector<cv::Point> >& squares_left , const std::vector<std::vector<cv::Point> >& squares_right);

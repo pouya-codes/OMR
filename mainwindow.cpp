@@ -33,19 +33,17 @@ void MainWindow::on_pushButton_2_clicked()
     db.setDatabaseName("OMR_Results.db");
     bool ok = db.open();
     if(ok) {
-                QSqlQuery query;
+        QSqlQuery query;
         std::cout<< "OK" << std::endl;
 
 
         query.exec("create table results "
-                  "(id integer , "
+                  "(id integer PRIMARY KEY AUTOINCREMENT, "
                   "orginalFilePath varchar(300), "
                   "processedFilePath varchar(300), "
                   "code varchar(30) ,"
                   "answers varchar(300)) "
                    );
-        query.exec("INSERT INTO results (id, orginalFilePath, processedFilePath) "
-                    "VALUES (1, 'Thad Beaumont', 'sasasa')");
         db.commit();
         db.close();
 
@@ -58,15 +56,16 @@ void MainWindow::on_pushButton_2_clicked()
 
 void MainWindow::on_pushButton_3_clicked()
 {
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("OMR_Results.db");
-    bool ok = db.open();
-    QSqlQuery query;
-    query.exec("SELECT * FROM results");
+    exit(0) ;
+//    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+//    db.setDatabaseName("OMR_Results.db");
+//    bool ok = db.open();
+//    QSqlQuery query;
+//    query.exec("SELECT * FROM results");
 
-    while (query.next()) {
-        int employeeId = query.value(0).toInt();
-        std::cout<< employeeId << std::endl;
-    }
+//    while (query.next()) {
+//        int employeeId = query.value(0).toInt();
+//        std::cout<< employeeId << std::endl;
+//    }
 
 }

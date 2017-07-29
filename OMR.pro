@@ -14,7 +14,7 @@ TEMPLATE = app
 
 unix: CONFIG += link_pkgconfig
 unix: PKGCONFIG += opencv
-unix: PKGCONFIG += zbar
+
 
 
 SOURCES += main.cpp\
@@ -34,4 +34,5 @@ FORMS    += mainwindow.ui \
     omrprocess.ui
 
 LIBS +=   -lboost_system \
--lboost_filesystem
+-lboost_filesystem \
+-lzxing

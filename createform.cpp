@@ -23,6 +23,7 @@ CreateForm::CreateForm(QWidget *parent) :
     ui(new Ui::CreateForm)
 {
     ui->setupUi(this);
+    std::cout << CV_VERSION << std::endl ;
 }
 
 CreateForm::~CreateForm()
