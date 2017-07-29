@@ -13,6 +13,8 @@
 #include <fstream>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
+#include <thread>
+#include <future>
 
 
 
@@ -56,7 +58,10 @@ void OMRProcess::ProcessImage(std::string path,std::string pathOrginal,std::stri
             continue;
         }
 
-        cv::Mat process_image = answerSheet->ProcessImage(image,ui->lineEditTableName->text(),pathOrginal,pathProcessed,pathError) ;
+        auto f1 = std::async(&AnswerSheet::ProcessImage,  answerSheet, image, ui->lineEditTableName->text(), pathOrginal,pathProcessed,pathError);
+        cv::Mat process_image = f1.get();
+
+//        cv::Mat process_image = answerSheet->ProcessImage(image,ui->lineEditTableName->text(),pathOrginal,pathProcessed,pathError) ;
         if(! process_image.empty())
         {
             cv::resize(process_image, process_image,cv::Size(ui->label->width(),ui->label->height())) ;
@@ -254,12 +259,17 @@ void OMRProcess::queryData() {
         dataModel->setFilter(filter_txt);
     }
 
+    if (ui->checkBoxTwoChoices->isChecked()) {
+        dataModel->setFilter("answers like '%*%'");
+    }
+
     dataModel->select();
     dataModel->removeColumn(2);
     dataModel->removeColumn(1);
     dataModel->setHeaderData(0, Qt::Orientation::Horizontal, tr("ID"));
     dataModel->setHeaderData(1,  Qt::Orientation::Horizontal, tr("Code"));
     dataModel->setHeaderData(2,  Qt::Orientation::Horizontal, tr("Answers"));
+    dataModel->setHeaderData(3,  Qt::Orientation::Horizontal, tr("Date"));
 
     ui->tableView->setModel(dataModel);
 
@@ -297,16 +307,36 @@ void OMRProcess::on_lineEditSearch_textChanged(const QString &arg1)
 void OMRProcess::handleAfterEdit( QModelIndex index ,QModelIndex index2 ,QVector<int> vector) {
     QString id = index.sibling(index.row(), 0).data().toString();
     QSqlQuery query;
-    QString queryString = "SELECT * FROM " + ui->lineEditTableName->text() + " WHERE id = " + id ;
+    QString queryString = "SELECT orginalFilePath,processedFilePath FROM " + ui->lineEditTableName->text() + " WHERE id = " + id ;
     query.exec(queryString);
     query.first() ;
-    QString orginal_path = query.value(1).toString();
-    QString processed_path = query.value(2).toString();
-    QString barcode = query.value(3).toString();
-    query.exec() ;
-    //TODO reanme orginal and processed file , update barcode
+    QString orginal_path = query.value(0).toString();
+    QString processed_path = query.value(1).toString();
+    //    QString barcode = query.value(2).toString();
+
     QString barcodenew = index.sibling(index.row(), 1).data().toString();
-    std::cout << id.toStdString()  << "-" << barcode.toStdString()  << "-" << barcodenew.toStdString()<< std::endl ;
+
+    QStringList temp = orginal_path.split('/') ;
+    QString newOrginalFilePath = "" ;
+    for (int var = 0; var < temp.length()-1; ++var) {
+        newOrginalFilePath += temp.at(var) +"/" ;
+    }
+    newOrginalFilePath +=barcodenew +".jpg" ;
+
+    temp = processed_path.split('/') ;
+    QString newProcessedFilePath = "" ;
+    for (int var = 0; var < temp.length()-1; ++var) {
+        newProcessedFilePath += temp.at(var) +"/" ;
+    }
+    newProcessedFilePath +=barcodenew +".jpg" ;
+
+    std::rename(orginal_path.toStdString().c_str(),newOrginalFilePath.toStdString().c_str()) ;
+    std::rename(processed_path.toStdString().c_str(),newProcessedFilePath.toStdString().c_str()) ;
+
+
+    queryString = "UPDATE " + ui->lineEditTableName->text() + " SET code ='" +barcodenew + "',orginalFilePath ='"+newOrginalFilePath + "',processedFilePath='" +newProcessedFilePath + "' WHERE id = " + id ; // update barcode
+    query.exec(queryString) ;
+    //    std::cout << id.toStdString()  << "-" << barcode.toStdString()  << "-" << barcodenew.toStdString()<<  "-" << queryString.toStdString() << std::endl ;
 }
 
 void OMRProcess::on_pushButton_3_clicked()
@@ -316,22 +346,40 @@ void OMRProcess::on_pushButton_3_clicked()
     reply = QMessageBox::question(this, "حذف اطلاعات","آیا موارد انتخاب شده حذف شود؟",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply==QMessageBox::Yes) {
-        QString queryString = "DELETE FROM " + ui->lineEditTableName->text() +" WHERE id = " ;
+        QString queryStringDelete = "DELETE FROM " + ui->lineEditTableName->text() ;
+        QString queryStringIDS =" WHERE id = "  ;
         for(int i=0; i< selection.count(); i++)
         {
             QModelIndex index = selection.at(i);
             QString id = index.sibling(index.row(), 0).data().toString();
-            queryString+= id ;
+            queryStringIDS+= id ;
             if (i!= selection.count()-1)
-                queryString+= " or id = " ;
+                queryStringIDS+= " or id = " ;
+
+        }
+        if (ui->checkBoxOmitOrginalImage->isChecked() || ui->checkBoxOmitProcessedImage->isChecked()){
+            QString queryStringPath = "SELECT orginalFilePath,processedFilePath FROM "+ ui->lineEditTableName->text() +queryStringIDS;
+            QSqlQuery queryPath;
+            queryPath.exec(queryStringPath) ;
+            while (queryPath.next()) {
+                QString orgpath = queryPath.value(0).toString();
+                QString procpath = queryPath.value(1).toString();
+                if(ui->checkBoxOmitOrginalImage->isChecked()) std::remove(orgpath.toStdString().c_str()) ;
+                if(ui->checkBoxOmitProcessedImage->isChecked()) std::remove(procpath.toStdString().c_str()) ;
+            };
 
         }
         QSqlQuery query;
-        if (query.exec(queryString))
+        if (query.exec(queryStringDelete +queryStringIDS ))
             QMessageBox::information(this , "عملیات موفق","رکوردها با موفقیت حذف شد.") ;
         queryData();
     }
 
 
 
+}
+
+void OMRProcess::on_checkBoxTwoChoices_clicked()
+{
+    queryData();
 }

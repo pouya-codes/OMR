@@ -30,7 +30,7 @@ std::vector<std::vector<cv::Vec3b>> omit_colors ;
 int image_width,image_height;
 void mouseHandler (int event, int x, int y, int flags, void *userdata);
 int color_omit_rang = 25 ;
-int thresh_choice_value = 100;
+int thresh_choice_value = 30;
 int eye_number ;
 int pad_rect , referenceEye, distanceWidth, distanceHeight, choiceWidth, choiceHeight,
 choiceNumber,  distanceChoiceChoice, numberOfQuestions,  columnDistance ,
@@ -54,7 +54,7 @@ bool AnswerSheet::createTable(QString tableName) {
               "orginalFilePath varchar(300), "
               "processedFilePath varchar(300), "
               "code varchar(30) ,"
-              "answers varchar(300)) "
+              "answers varchar(300),date varchar(50)) "
                );
 }
 
@@ -207,12 +207,12 @@ int AnswerSheet::RemoveColorsDialog() {
     cv::imshow(wndname,image) ;
     char c = (char)cv::waitKey();
     if( c == 27 ) {
-        cv::destroyWindow(wndname);
+         cv::destroyAllWindows();
         return 0 ;
 
     }
     if(c== 'c') {
-        cv::destroyWindow(wndname);
+        cv::destroyAllWindows();
         return 1 ;
     }
 }
@@ -294,10 +294,10 @@ int AnswerSheet::findSquares( const cv::Mat& image, std::vector<std::vector<cv::
     cv::Canny(pyr, gray, 0, 50, 5);
 //    cv::dilate(gray, gray, cv::Mat(), cv::Point(-1,-1));
     cv::dilate(gray, gray, element);
-    cv::Mat tttt ;
-    cv::resize(gray,tttt,cv::Size(gray.cols/2, gray.rows/2)) ;
-    cv::imshow(wndname,tttt);
-    cv::waitKey(0);
+//    cv::Mat tttt ;
+//    cv::resize(gray,tttt,cv::Size(gray.cols/2, gray.rows/2)) ;
+//    cv::imshow(wndname,tttt);
+//    cv::waitKey(0);
 
 
 
@@ -559,13 +559,15 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
 
 
         QSqlQuery query;
-        QString querytxt = "INSERT INTO " + table_name + " ( code, answers,orginalFilePath,processedFilePath) "
-                                                         "VALUES ( :code, :answers , :orginalFilePath ,:processedFilePath)" ;
+        QString querytxt = "INSERT INTO " + table_name + " ( code, answers,orginalFilePath,processedFilePath,date) "
+                                                         "VALUES ( :code, :answers , :orginalFilePath ,:processedFilePath,:date)" ;
         query.prepare(querytxt);
         query.bindValue(":code", resultPointCount == 0 ? " " : QString::fromStdString( barcode));
         query.bindValue(":answers", QString::fromStdString(answers));
         query.bindValue(":orginalFilePath", QString::fromStdString(file_name_org));
         query.bindValue(":processedFilePath", QString::fromStdString(file_name_proc));
+        query.bindValue(":date", QString::fromStdString(currentDateTime()));
+
         query.exec();
 
         //        std::cout <<barcode << std::endl;
@@ -600,7 +602,8 @@ std::string AnswerSheet::readChoices(cv::Mat& img_org ,cv::Mat& img ,std::vector
     cv::threshold(threshold,threshold,220,255,cv::THRESH_BINARY_INV) ;
 
     int max_values [numberOfQuestions] ;
-
+    int min = 1000 ;
+    int max = 100 ;
     while (ques_counter< numberOfQuestions) {
 
         int choice_value [choiceNumber] ;
@@ -610,7 +613,9 @@ std::string AnswerSheet::readChoices(cv::Mat& img_org ,cv::Mat& img ,std::vector
                     choiceWidth,choiceHeight) ;
             cv::Mat choice_roi = threshold(c1);
             choice_value[choice] = cv::sum(choice_roi)[0]/c1.area()  ;
-            std::cout << choice_value[choice] << std::endl ;
+            if (cv::sum(choice_roi)[0]/c1.area() > max ) max = cv::sum(choice_roi)[0]/c1.area() ;
+            if (cv::sum(choice_roi)[0]/c1.area() < min ) min = cv::sum(choice_roi)[0]/c1.area() ;
+//            std::cout << choice_value[choice] << "- max = " << max  << std::endl ;
         }
         int* max_choice_value = std::max_element(choice_value,choice_value+choiceNumber);
         if(*max_choice_value > thresh_choice_value) {
@@ -628,6 +633,9 @@ std::string AnswerSheet::readChoices(cv::Mat& img_org ,cv::Mat& img ,std::vector
 
         }
     }
+//    std::cout << "max = " << max << " min = " << min << std::endl ;
+
+    /*
     int sums = 0 ;
     int max_numbers = 0 ;
     for (int var = 0; var < numberOfQuestions; ++var) {
@@ -647,6 +655,7 @@ std::string AnswerSheet::readChoices(cv::Mat& img_org ,cv::Mat& img ,std::vector
     if(threshold_value<(thresh_choice_value/2)) {
         threshold_value = thresh_choice_value/2 ;
     }
+    */
 
     ques_counter = 0 ;   row = 0;  column=0;
 
@@ -661,14 +670,15 @@ std::string AnswerSheet::readChoices(cv::Mat& img_org ,cv::Mat& img ,std::vector
                     left_eye_[row+referenceEye].y+distanceHeight  ,
                     choiceWidth,choiceHeight) ;
             cv::Mat choice_roi = threshold(c1);
-            choice_value[choice] = cv::sum(choice_roi)[0]/c1.area()  ;
+            choice_value[choice] = (((cv::sum(choice_roi)[0]/c1.area())-min)/(max-min)) *100 ;
+//            std::cout << choice_value[choice] << std::endl ;
         }
-        int* max_choice = std::max_element(choice_value,choice_value+choiceNumber);
 
-        if (*max_choice>threshold_value) { //choiced
+        int* max_choice = std::max_element(choice_value,choice_value+choiceNumber);
+        if (*max_choice>thresh_choice_value) { //choiced
             int max_idx = std::distance(choice_value, max_choice) ;
             for (int choice = 0; choice < choiceNumber; ++choice) {
-                if ( choice!= max_idx && (*max_choice-choice_value[choice])<(threshold_value/(2))) {
+                if ( choice!= max_idx && (*max_choice-choice_value[choice])<(thresh_choice_value/(3))) {
                     twochoice=true ;
                     cv::Rect c1 = cv::Rect(left_eye_[row+referenceEye].x+ distanceWidth+(choice * distanceChoiceChoice)+(column*columnDistance),
                             left_eye_[row+referenceEye].y+distanceHeight  ,

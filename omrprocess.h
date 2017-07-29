@@ -52,6 +52,8 @@ private slots:
 
     void on_pushButton_3_clicked();
 
+    void on_checkBoxTwoChoices_clicked();
+
 private:
     Ui::OMRProcess *ui;
     AnswerSheet* answerSheet ;
