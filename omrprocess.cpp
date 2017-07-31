@@ -27,6 +27,7 @@ OMRProcess::OMRProcess(QWidget *parent) :
     ui->setupUi(this);
     running = false ;
 
+
     getTableNames();
 
 
@@ -43,36 +44,73 @@ void OMRProcess::setAnswerSheet(AnswerSheet* answerSheet_) {
 }
 
 
+cv::Mat OMRProcess::ProcessImage(cv::String imagePath,std::string pathOrginal,std::string pathProcessed,std::string pathError)  {
+    const cv::Mat image = cv::imread(imagePath);
+    if(image.empty())
+    {
+        std::cout << "can not open " << imagePath << "\n";
+        return cv::Mat();
+    }
 
 
-void OMRProcess::ProcessImage(std::string path,std::string pathOrginal,std::string pathProcessed,std::string pathError) {
+    cv::Mat process_image = answerSheet->ProcessImage(image,ui->lineEditTableName->text(),pathOrginal,pathProcessed,pathError) ;
+    return process_image ;
+
+}
+
+void OMRProcess::ProcessImagePath(std::string path,std::string pathOrginal,std::string pathProcessed,std::string pathError) {
     std::string inpath = path + "/*.jpg";
     std::vector<cv::String> fn;
     cv::glob(inpath, fn, false);
     size_t count = fn.size();
-    for (size_t i=0; i<count; i++){
-        const cv::Mat image = cv::imread(fn[i]);
-        if(image.empty())
-        {
-            std::cout << "can not open " << fn[i] << "\n";
-            continue;
-        }
-
-        auto f1 = std::async(&AnswerSheet::ProcessImage,  answerSheet, image, ui->lineEditTableName->text(), pathOrginal,pathProcessed,pathError);
-        cv::Mat process_image = f1.get();
-
-//        cv::Mat process_image = answerSheet->ProcessImage(image,ui->lineEditTableName->text(),pathOrginal,pathProcessed,pathError) ;
-        if(! process_image.empty())
-        {
-            cv::resize(process_image, process_image,cv::Size(ui->label->width(),ui->label->height())) ;
-            QImage qt_img = ASM::cvMatToQImage( process_image );
-            ui->label->setPixmap(QPixmap::fromImage(qt_img));
-
+    if (ui->checkBoxMultiThread->isChecked()) {
+        int num_threads = 8 ;
+//        if (count<num_threads)
+//            num_threads=count ;
+        size_t filecounter ;
+        for (filecounter = 0; filecounter<count; filecounter+=num_threads){
+            if(count- filecounter <num_threads)
+                break ;
+            std::thread threads[num_threads];
+            for (int t=0; t<num_threads; ++t)
+                threads[t] = std::thread(&OMRProcess::ProcessImage,this,fn[filecounter+t],pathOrginal,pathProcessed,pathError);
+            for (auto& th : threads) th.join();
             queryData() ;
+            ui->tableView->scrollToBottom();
             QCoreApplication::processEvents();
+        }
+        int remainFiles = count-filecounter ;
+        if (remainFiles!=0) {
+                std::thread threads[remainFiles];
+                for (int i=0; i<remainFiles; ++i)
+                    threads[i] = std::thread(&OMRProcess::ProcessImage,this,fn[filecounter+i],pathOrginal,pathProcessed,pathError);
+                for (auto& th : threads) th.join();
+                //                ui->labelStatus->setText("تعداد کل تصاویر:"+ QString(count) + " باقی مانده "+ QString(std::abs(count-i) ));
+                queryData() ;
+                ui->tableView->scrollToBottom();
+                QCoreApplication::processEvents();
 
         }
+
     }
+    else {
+        for (size_t i=0; i<count; i++){
+            cv::Mat resultImage =ProcessImage(fn[i],pathOrginal,pathProcessed,pathError) ;
+            if ( !resultImage.empty()) {
+                cv::resize(resultImage, resultImage,cv::Size(ui->label->width(),ui->label->height())) ;
+                QImage qt_img = ASM::cvMatToQImage( resultImage );
+                ui->label->setPixmap(QPixmap::fromImage(qt_img));
+                queryData() ;
+                ui->tableView->scrollToBottom();
+                QCoreApplication::processEvents();
+            }
+        }
+
+    }
+
+
+
+
 }
 
 void OMRProcess::getTableNames() {
@@ -131,14 +169,14 @@ void OMRProcess::on_pushButton_clicked()
 
     if(source!="") {
 
-        ProcessImage(source.toStdString(),
-                     createRecurciveDirectory(ui->lineEditOrginalPath->text().toStdString()) ,
-                     createRecurciveDirectory(ui->lineEditProcessedPath->text().toStdString()),
-                     createRecurciveDirectory(ui->lineEditErrorPath->text().toStdString()));
-        running=false ;
+        ProcessImagePath(source.toStdString(),
+                         createRecurciveDirectory(ui->lineEditOrginalPath->text().toStdString()) ,
+                         createRecurciveDirectory(ui->lineEditProcessedPath->text().toStdString()),
+                         createRecurciveDirectory(ui->lineEditErrorPath->text().toStdString()));
+
     }
 
-
+    running=false ;
 
 }
 
@@ -178,8 +216,8 @@ void OMRProcess::setPicture (int id) {
     query.bindValue(0, id);
     query.exec() ;
     query.first() ;
-    QString processed_path = query.value(0).toString();
-    QString orginal_path = query.value(1).toString();
+    QString orginal_path = query.value(0).toString();
+    QString processed_path = query.value(1).toString();
     cv::Mat image = ui->radioButtonProcessed->isChecked() ? cv::imread(processed_path.toStdString().c_str()) :cv::imread(orginal_path.toStdString().c_str()) ;
     //    std::cout << processed_path.toStdString() << id << std::endl ;
     if(! image.empty())
@@ -263,9 +301,18 @@ void OMRProcess::queryData() {
         dataModel->setFilter("answers like '%*%'");
     }
 
+    if (ui->checkBoxApsent->isChecked()) {
+        dataModel->setFilter("LENGTH(REPLACE(answers, ' ', '')) > 0  AND  LENGTH(REPLACE(answers, ' ', '')) < 4");
+    }
+
+    if (ui->checkBoxLowColors->isChecked()) {
+        dataModel->setFilter("maxblackness <170 and LENGTH(REPLACE(answers, ' ', '')) != 0");
+    }
+
     dataModel->select();
     dataModel->removeColumn(2);
     dataModel->removeColumn(1);
+    dataModel->removeColumn(4);
     dataModel->setHeaderData(0, Qt::Orientation::Horizontal, tr("ID"));
     dataModel->setHeaderData(1,  Qt::Orientation::Horizontal, tr("Code"));
     dataModel->setHeaderData(2,  Qt::Orientation::Horizontal, tr("Answers"));
@@ -382,4 +429,30 @@ void OMRProcess::on_pushButton_3_clicked()
 void OMRProcess::on_checkBoxTwoChoices_clicked()
 {
     queryData();
+}
+
+void OMRProcess::on_checkBoxApsent_clicked()
+{
+    queryData();
+}
+
+
+void OMRProcess::on_checkBoxLowColors_clicked()
+{
+    queryData();
+}
+
+void OMRProcess::on_lineEditTableName_textChanged(const QString &arg1)
+{
+    ui->lineEditErrorPath->setText(ui->LineEditMain->text() +"/Error/"+arg1);
+    ui->lineEditOrginalPath->setText(ui->LineEditMain->text() +"/Orginal/"+arg1);
+    ui->lineEditProcessedPath->setText(ui->LineEditMain->text() +"/Processed/"+arg1);
+}
+
+void OMRProcess::on_LineEditMain_textChanged(const QString &arg1)
+{
+    ui->lineEditErrorPath->setText(arg1 +"/Error");
+    ui->lineEditOrginalPath->setText(arg1 +"/Orginal");
+    ui->lineEditProcessedPath->setText(arg1 +"/Processed");
+
 }

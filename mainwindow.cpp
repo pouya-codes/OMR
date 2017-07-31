@@ -42,7 +42,7 @@ void MainWindow::on_pushButton_2_clicked()
                   "orginalFilePath varchar(300), "
                   "processedFilePath varchar(300), "
                   "code varchar(30) ,"
-                  "answers varchar(300),date varchar(50)) "
+                  "answers varchar(300),date varchar(50),maxblackness integer) "
                    );
         db.commit();
         db.close();

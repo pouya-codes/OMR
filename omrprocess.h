@@ -20,7 +20,9 @@ public:
 
 private slots:
     void on_pushButton_clicked();
-    void ProcessImage(std::string path,std::string pathOrginal,std::string pathProcessed,std::string pathError) ;
+    void ProcessImagePath(std::string path,std::string pathOrginal,std::string pathProcessed,std::string pathError) ;
+    cv::Mat ProcessImage(cv::String imagePath,std::string pathOrginal,std::string pathProcessed,std::string pathError) ;
+
     void on_pushButton_2_clicked();
     void getTableNames() ;
     void queryData();
@@ -53,6 +55,14 @@ private slots:
     void on_pushButton_3_clicked();
 
     void on_checkBoxTwoChoices_clicked();
+
+    void on_checkBoxApsent_clicked();
+
+    void on_checkBoxLowColors_clicked();
+
+    void on_lineEditTableName_textChanged(const QString &arg1);
+
+    void on_LineEditMain_textChanged(const QString &arg1);
 
 private:
     Ui::OMRProcess *ui;

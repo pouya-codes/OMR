@@ -70,19 +70,6 @@
        </property>
        <item>
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="1" column="1">
-          <widget class="QPushButton" name="pushButton">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>1</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>پردازش تصویر</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="0">
           <widget class="QPushButton" name="pushButton_2">
            <property name="sizePolicy">
@@ -96,51 +83,14 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="5" column="1">
           <widget class="QCheckBox" name="checkBoxDuplicated">
            <property name="text">
             <string>نمایش کدهای تکراری</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
-          <widget class="QRadioButton" name="radioButtonProcessed">
-           <property name="text">
-            <string>تصویر پردازش شده</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QRadioButton" name="radioButtonOrginal">
-           <property name="text">
-            <string>تصویر اصلی</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>جستجو</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
          <item row="5" column="0">
-          <widget class="QLineEdit" name="lineEditSearch">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
             <widget class="QCheckBox" name="checkBoxTwoChoices">
@@ -157,6 +107,89 @@
             </widget>
            </item>
           </layout>
+         </item>
+         <item row="7" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="QLineEdit" name="lineEditSearch">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>جستجو</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="7" column="1">
+          <widget class="QCheckBox" name="checkBoxApsent">
+           <property name="text">
+            <string>مشکوک به غایب</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QCheckBox" name="checkBoxMultiThread">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>1</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>پردازش تصویر</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="3" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <item>
+            <widget class="QRadioButton" name="radioButtonOrginal">
+             <property name="text">
+              <string>تصویر اصلی</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioButtonProcessed">
+             <property name="text">
+              <string>تصویر پردازش شده</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="3" column="1">
+          <widget class="QCheckBox" name="checkBoxLowColors">
+           <property name="text">
+            <string>پاسخنامه های کمرنگ</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -253,6 +286,20 @@
          </item>
         </layout>
        </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="Label_4">
+         <property name="text">
+          <string>میسر ذخیره سازی</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="LineEditMain">
+         <property name="text">
+          <string>/home/pouya/Develop/OMR</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
     </layout>
@@ -276,6 +323,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="pushButton_4">
+         <property name="text">
+          <string>حذف همه</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="pushButton_3">
          <property name="text">
           <string>حدف سطرها</string>
@@ -283,6 +337,33 @@
         </widget>
        </item>
       </layout>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_9">
+     <item>
+      <widget class="QPushButton" name="pushButtonStop">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>توقف</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelStatus">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
