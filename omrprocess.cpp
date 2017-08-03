@@ -306,7 +306,7 @@ void OMRProcess::queryData() {
     }
 
     if (ui->checkBoxLowColors->isChecked()) {
-        dataModel->setFilter("maxblackness <170 and LENGTH(REPLACE(answers, ' ', '')) != 0");
+        dataModel->setFilter("maxblackness <= 75 and LENGTH(REPLACE(answers, ' ', '')) != 0");
     }
 
     dataModel->select();

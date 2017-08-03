@@ -22,7 +22,7 @@ class AnswerSheet
 public:
     AnswerSheet(cv::Mat img);
     cv::Mat RemoveColors () ;
-    int DetectEyes (int pad_rectangle) ;
+    void DetectEyes (int pad_rectangle) ;
     cv::Mat getImage();
     cv::Mat DrawChoices (int referenceEye,int distanceWidth,int distanceHeight,int choiceWidth,int choiceHeight,
                          int choiceNumber, int distanceChoiceChoice, int numberOfQuestions, int columnDistance,
@@ -33,7 +33,7 @@ public:
 
 
 private :
-    int RemoveColorsDialog () ;
+    void RemoveColorsDialog () ;
     int findSquares( const cv::Mat& image, std::vector<std::vector<cv::Point> >& squares,cv::Rect area );
     void drawSquares( cv::Mat& image, cv::vector<cv::Rect> rect_vector , cv::Scalar color =cv::Scalar(0,255,0) );
     void sortSquares( const std::vector<std::vector<cv::Point> >& squares ,

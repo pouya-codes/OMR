@@ -31,7 +31,7 @@ std::vector<std::vector<cv::Vec3b>> omit_colors ;
 int image_width,image_height;
 void mouseHandler (int event, int x, int y, int flags, void *userdata);
 int color_omit_rang = 30 ;
-int thresh_choice_value = 30;
+int thresh_choice_value = 50;
 int eye_number ;
 int pad_rect , referenceEye, distanceWidth, distanceHeight, choiceWidth, choiceHeight,
 choiceNumber,  distanceChoiceChoice, numberOfQuestions,  columnDistance ,
@@ -101,7 +101,7 @@ AnswerSheet::AnswerSheet(cv::Mat img)
 }
 
 cv::Mat AnswerSheet::RemoveColors() {
-    int res = RemoveColorsDialog();
+    RemoveColorsDialog();
     return image;
 
 }
@@ -111,14 +111,14 @@ cv::Mat AnswerSheet::getImage() {
     return image ;
 }
 
-int AnswerSheet::DetectEyes (int pad_rectangle) {
+void AnswerSheet::DetectEyes (int pad_rectangle) {
     pad_rect =pad_rectangle ;
     cv::Rect left_rect = cv::Rect(0,0,pad_rect,image.rows);
     cv::Rect right_rect = cv::Rect(image.cols-pad_rect,0,pad_rect,image.rows);
     cv::vector<cv::vector<cv::Point>> squares_left,squares_right;
     int a = findSquares(image, squares_left,left_rect);
     int b = findSquares(image, squares_right,right_rect);
-
+    //std::cout << a <<"-" << b << std::endl ;
     if(a == b ) {
         eye_number =a ;
 
@@ -130,6 +130,7 @@ int AnswerSheet::DetectEyes (int pad_rectangle) {
 
         int c = findSquares(image, squares_left,left_rect);
         int d = findSquares(image, squares_right,right_rect);
+        //        std::cout << c <<"-" << d<< std::endl ;
         if(c == d and c== a ) {
             sortSquares(squares_left,left_eye,LEFT);
             sortSquares(squares_right,right_eye,RIGHT);
@@ -147,19 +148,6 @@ int AnswerSheet::DetectEyes (int pad_rectangle) {
     }
 
 
-    //
-
-
-    //
-
-
-
-    //    cv::Rect c1 = cv::Rect(left_eye[eye_number-1].x+choice_1.x,
-    //            left_eye[eye_number-1].y+choice_1.y,
-    //            choice_area.width,choice_area.height) ;
-    //    cv::Rect c2 = cv::Rect(left_eye[eye_number-1].x+choice_2.x,
-    //            left_eye[eye_number-1].y+choice_2.y,
-    //            choice_area.width,choice_area.height) ;
 }
 cv::Mat AnswerSheet::DrawChoices (int referenceEye_,int distanceWidth_,int distanceHeight_,int choiceWidth_,int choiceHeight_,
                                   int choiceNumber_, int distanceChoiceChoice_, int numberOfQuestions_, int columnDistance_,
@@ -187,7 +175,7 @@ cv::Mat AnswerSheet::DrawChoices (int referenceEye_,int distanceWidth_,int dista
     while (ques_counter< numberOfQuestions) {
         for (int choice = 0; choice < choiceNumber; ++choice) {
             cv::Rect c1 = cv::Rect(left_eye[row+referenceEye].x+ distanceWidth+(choice * distanceChoiceChoice)+(column*columnDistance),
-                    left_eye[row+referenceEye].y+distanceHeight  ,
+                    ((left_eye[row+referenceEye].y+distanceHeight)+(right_eye[row+referenceEye].y+distanceHeight))/2  ,
                     choiceWidth,choiceHeight) ;
             cv::rectangle(temp,c1,cv::Scalar(255,0,0),2);
         }
@@ -206,19 +194,19 @@ cv::Mat AnswerSheet::DrawChoices (int referenceEye_,int distanceWidth_,int dista
 
 }
 
-int AnswerSheet::RemoveColorsDialog() {
+void AnswerSheet::RemoveColorsDialog() {
     cv::namedWindow( wndname, 1 );
     cv::setMouseCallback(wndname,mouseHandler) ;
     cv::imshow(wndname,image) ;
     char c = (char)cv::waitKey();
     if( c == 27 ) {
         cv::destroyAllWindows();
-        return 0 ;
+        return ;
 
     }
     if(c== 'c') {
         cv::destroyAllWindows();
-        return 1 ;
+        return ;
     }
 }
 
@@ -276,37 +264,17 @@ int AnswerSheet::findSquares( const cv::Mat& image, std::vector<std::vector<cv::
 
     cv::Mat thr ;
     cv::Mat roi_image= image(area) ;
-
     cv::cvtColor(roi_image,thr,cv::COLOR_BGR2GRAY) ;
-    cv::threshold(thr,thr,80,255,cv::THRESH_BINARY) ;
-
-
-    cv::Mat pyr, gray;
-
-    pyrDown(thr, pyr, cv::Size(roi_image.cols/2, roi_image.rows/2));
-    //    pyrDown(pyr, pyr, cv::Size(pyr.cols/2, pyr.rows/2));
-    //    pyrUp(pyr, pyr, cv::Size(roi_image.cols/2, roi_image.rows/2));
-    pyrUp(pyr, pyr, roi_image.size());
-
-
-    int dilation_size = 3 ;
-
+    thr(cv::Rect(0,0,thr.cols,60)) = cv::Scalar(255) ;
+    thr(cv::Rect(0,thr.rows-60,roi_image.cols,60)) = cv::Scalar(255) ;
+    cv::threshold(thr,thr,120,255,cv::THRESH_BINARY_INV) ;
+    int dilation_size = 1 ;
     cv::Mat element = getStructuringElement( cv::MORPH_RECT,
                                              cv::Size( 2*dilation_size + 1, 2*dilation_size+1 ),
                                              cv::Point( dilation_size, dilation_size ) );
-
-
-    cv::Canny(pyr, gray, 0, 30, 5);
-    //    cv::dilate(gray, gray, cv::Mat(), cv::Point(-1,-1));
-    cv::dilate(gray, gray, element);
-    //    cv::Mat tttt ;
-    //    cv::resize(gray,tttt,cv::Size(gray.cols/2, gray.rows/2)) ;
-    //    cv::imshow(wndname,gray);
-    //    cv::waitKey(0);
-
-
+    cv::dilate(thr, thr, element);
     cv::vector<cv::vector<cv::Point> > contours;
-    cv::findContours(gray, contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
+    cv::findContours(thr, contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
 
     cv::vector<cv::Point> approx;
 
@@ -314,7 +282,7 @@ int AnswerSheet::findSquares( const cv::Mat& image, std::vector<std::vector<cv::
     {
         cv::approxPolyDP(cv::Mat(contours[i])   , approx, arcLength(cv::Mat(contours[i]), true)*0.10, true);
         if( approx.size() == 4 &&
-                fabs(contourArea(cv::Mat(approx))) > 200 && fabs(contourArea(cv::Mat(approx))) < 500 &&
+                fabs(contourArea(cv::Mat(approx))) > 150 && fabs(contourArea(cv::Mat(approx))) < 600 &&
                 cv::isContourConvex(cv::Mat(approx)) )
         {
             double maxCosine = 0;
@@ -395,26 +363,13 @@ void AnswerSheet::sortSquares( const std::vector<std::vector<cv::Point> >& squar
         }
 
         if(pose==LEFT){
-            rect_area = cv::Rect(
-                        min_x,
-                        min_y,
-                        (max_x - min_x),
-                        (max_y - min_y)) ;
-
+            rect_area = cv::Rect(min_x,min_y,(max_x - min_x),(max_y - min_y)) ;
         }
 
         else
         {
-            rect_area = cv::Rect(
-                        (image_width-pad_rect) + min_x,
-                        min_y,
-                        (max_x - min_x),
-                        (max_y - min_y)) ;
-
-            //            std::cout<< i <<" : " << squares[i] << "***" << p_1 << std::endl;
+            rect_area = cv::Rect((image_width-pad_rect) + min_x,min_y,(max_x - min_x),(max_y - min_y)) ;
         }
-
-
 
         rect_vector.push_back(rect_area);
 
@@ -425,19 +380,14 @@ void AnswerSheet::sortSquares( const std::vector<std::vector<cv::Point> >& squar
 double AnswerSheet::findAngle(const std::vector<std::vector<cv::Point> >& squares_left , const std::vector<std::vector<cv::Point> >& squares_right)
 {
 
+    cv::Point p_1 = squares_left[eye_number -1][0] ;
+    cv::Point p_2 = squares_right[eye_number -1][0] ;
+    double ang1 = atan (double(p_2.y-p_1.y)/((p_2.x+image_width-pad_rect)-p_1.x) * 180 / PI) ;
+    p_1 = squares_left[0][0] ;
+    p_2 = squares_right[0][0] ;
+    double ang2 = atan (double(p_2.y-p_1.y)/((p_2.x+image_width-pad_rect)-p_1.x) * 180 / PI) ;
 
-    int i = eye_number -1 ;
-    cv::Point p_1 = squares_left[i][1] ;
-    if(squares_left[i][0].x <= squares_left[i][1].x && squares_left[i][0].y <= squares_left[i][1].y) {
-        p_1 = squares_left[i][0] ;
-    }
-    cv::Point p_2 = squares_right[i][1] ;
-    if(squares_right[i][0].x <= squares_right[i][1].x && squares_right[i][0].y <= squares_right[i][1].y) {
-        p_2 = squares_right[i][0] ;
-    }
-    //        std::cout<<p_2 << "-" << p_1 << std::endl ;
-    return atan (double(p_2.y-p_1.y)/((p_2.x+image_width-pad_rect)-p_1.x) * 180 / PI);
-
+    return ((ang1+ang2)/2);
 
 }
 
@@ -445,8 +395,8 @@ void AnswerSheet::rotateRect(cv::Rect& rect, const cv::Mat & rot)
 {
     std::vector<cv::Point2f> rot_roi_points;
     std::vector<cv::Point2f> roi_points = {
-        {rect.x,              rect.y},
-        {rect.x + rect.width, rect.y + rect.height}
+        {(float)rect.x,              (float)rect.y},
+        {(float) (rect.x + rect.width), (float) (rect.y + rect.height)}
     };
     transform(roi_points, rot_roi_points, rot);
     cv::Rect result= cv::Rect((int) round(rot_roi_points[0].x),
@@ -490,11 +440,6 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
         rotateImage(img_resize,angle,left_eye_,right_eye_);
         rotateImage(img_resized_omitcolors,angle,left_eye_,right_eye_);
 
-        //        cv::resize(img_resize,img_resize,resize_size) ;
-        //        cv::resize(img_resized_omitcolors,img_resized_omitcolors,resize_size) ;
-
-
-
         int c = findSquares(img_resized_omitcolors, squares_left,left_rect);
         int d = findSquares(img_resized_omitcolors, squares_right,right_rect);
         sortSquares(squares_left,left_eye_,LEFT);
@@ -502,11 +447,7 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
 
         img_resize.copyTo(img_resize_out);
 
-        //        drawSquares(img_resize_out, left_eye_,cv::Scalar(255,0,0));
-        //        drawSquares(img_resize_out, right_eye_,cv::Scalar(255,0,0));
-
         if(c == d and c== a ) {
-
 
             OMRresult = readChoices(img_resize_out,img_resized_omitcolors,left_eye_,right_eye_) ;
         }
@@ -526,8 +467,9 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
         //        cv::imwrite("ZXing.jpg", gray_barcode);
 
         int resultPointCount= 0 ;
+        mtx.lock();
         try {
-            mtx.lock();
+
             Ref<LuminanceSource> source = MatSource::create(gray_barcode);
             Ref<Binarizer> binarizer(new GlobalHistogramBinarizer(source));
             Ref<BinaryBitmap> bitmap(new BinaryBitmap(binarizer));
@@ -538,7 +480,7 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
                 barcode =  result->getText()->getText();
                 cv::putText(img_resize_out, barcode, cv::Point(barcodeX,barcodeY+barcodeHeight), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar( 255, 0, 0 ),2);
             }
-            mtx.unlock();
+
         }      catch (const ReaderException& e) {
             std::cout << e.what() << " (ignoring)" << std::endl;
         } catch (const zxing::IllegalArgumentException& e) {
@@ -548,6 +490,7 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
         } catch (const std::exception& e) {
             std::cout << e.what() << " (ignoring)" << std::endl;
         }
+        mtx.unlock();
 
 
 
@@ -562,7 +505,7 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
         file_name_org = out_path_orginal + barcode + ".jpg";
         cv::imwrite(file_name_org,img_process) ;
 
-
+//        std::cout << barcode << ":" << OMRresult.blackness << std::endl ;
 
         QSqlQuery query;
         QString querytxt = "INSERT INTO " + table_name + " ( code, answers,orginalFilePath,processedFilePath,date,maxblackness) "
@@ -577,15 +520,12 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
 
         query.exec();
 
-        //                std::cout <<OMRresult.choices << std::endl;
-
         return img_resize_out ;
 
 
 
     }
     else {
-
         std::string file_name ;
         file_name = out_path_error+ currentDateTime() + ".jpg";
         cv::imwrite(file_name,img_process) ;
@@ -598,18 +538,16 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
 
 AnswerSheet::OMRResult AnswerSheet::readChoices(cv::Mat& img_org ,cv::Mat& img ,std::vector<cv::Rect> left_eye_,std::vector<cv::Rect> right_eye_){
     cv::Mat threshold ;
-    //    img.copyTo(temp);
     int ques_counter = 0 ;  int row = 0; int column=0;
     std::string answer_string = "" ;
-
     cv::cvtColor(img,threshold,cv::COLOR_RGB2GRAY) ;
-    cv::threshold(threshold,threshold,220,255,cv::THRESH_BINARY_INV) ;
+    cv::threshold(threshold,threshold,200,255,cv::THRESH_BINARY_INV) ;
 
-    //    int max_values [numberOfQuestions] ;
+    // get min a max balckness of choiced squres
     int min = 1000 ;
     int max = 100 ;
-    while (ques_counter< numberOfQuestions) {
-
+    bool firstCheck = true ;
+    for (ques_counter = 0 ; ques_counter < numberOfQuestions ; ques_counter++) {
         int choice_value [choiceNumber] ;
         for (int choice = 0; choice < choiceNumber; ++choice) {
             cv::Rect c1 = cv::Rect(left_eye_[row+referenceEye].x+ distanceWidth+(choice * distanceChoiceChoice)+(column*columnDistance),
@@ -617,83 +555,66 @@ AnswerSheet::OMRResult AnswerSheet::readChoices(cv::Mat& img_org ,cv::Mat& img ,
                     choiceWidth,choiceHeight) ;
             cv::Mat choice_roi = threshold(c1);
             choice_value[choice] = cv::sum(choice_roi)[0]/c1.area()  ;
-            if (cv::sum(choice_roi)[0]/c1.area() > max ) max = cv::sum(choice_roi)[0]/c1.area() ;
+            if (cv::sum(choice_roi)[0]/c1.area() > max ) {
+                if (firstCheck) {
+                    ques_counter = 0 ;  row = 0; column=0;
+                    max = cv::sum(choice_roi)[0]/c1.area() ;
+                    firstCheck=false ;
+                    continue ;
+                }
+                max = cv::sum(choice_roi)[0]/c1.area() ;
+            }
             if (cv::sum(choice_roi)[0]/c1.area() < min ) min = cv::sum(choice_roi)[0]/c1.area() ;
-            //            std::cout << choice_value[choice] << "- max = " << max  << std::endl ;
         }
-        //        int* max_choice_value = std::max_element(choice_value,choice_value+choiceNumber);
-        //        if(*max_choice_value > thresh_choice_value) {
-        //            max_values[ques_counter] = *max_choice_value ;
-
-        //        }
-        //        else {
-        //            max_values[ques_counter] = 0 ;
-        //        }
-        ques_counter++ ;
         row++ ;
         if(row+referenceEye == left_eye_.size() ) {
             column++ ;
             row = 0;
-
         }
     }
-    //    std::cout << "max = " << max << " min = " << min << std::endl ;
 
-    /*
-    int sums = 0 ;
-    int max_numbers = 0 ;
-    for (int var = 0; var < numberOfQuestions; ++var) {
-        if(max_values[var]!=0) {
-            sums+= max_values[var] ;
-            max_numbers+=1 ;
-        }
-
-    }
-    int threshold_value=0 ;
-    if (max_numbers!=0) {
-        threshold_value = (sums/max_numbers) ;
-        threshold_value-= threshold_value/2 ;
-    }
-
-    std::cout << "Mean" <<threshold_value << std::endl ;
-    if(threshold_value<(thresh_choice_value/2)) {
-        threshold_value = thresh_choice_value/2 ;
-    }
-    */
-
-    ques_counter = 0 ;   row = 0;  column=0;
-
-
-    while (ques_counter< numberOfQuestions) {
+    //detect selected choices
+    int choicesSum = 0 ;
+    int choicesCounter=0;
+    int darkness_threshold = thresh_choice_value;
+    firstCheck = true ;
+    for (ques_counter = 0 ,row = 0,  column=0 ; ques_counter < numberOfQuestions ; ques_counter++) {
         bool ischoiced = false ; bool twochoice = false ;
         int selected_choice = 0 ;
 
         int choice_value [choiceNumber] ;
+        int choice_value_pure [choiceNumber] ;
         for (int choice = 0; choice < choiceNumber; ++choice) {
             cv::Rect c1 = cv::Rect(left_eye_[row+referenceEye].x+ distanceWidth+(choice * distanceChoiceChoice)+(column*columnDistance),
                     ((left_eye_[row+referenceEye].y+distanceHeight)+(right_eye_[row+referenceEye].y+distanceHeight))/2   ,
                     choiceWidth,choiceHeight) ;
             cv::Mat choice_roi = threshold(c1);
-            choice_value[choice] = (((cv::sum(choice_roi)[0]/c1.area())-min)/(max-min)) * 100 ; // normalize choice blackness
-            //            std::cout << (ques_counter+1) << "-" << (choice+1) << "=" << choice_value[choice] << std::endl ;
+            choice_value[choice] = (((cv::sum(choice_roi)[0]/c1.area())-min)/(max-min)) * 100 ; // normalize blackness of the choices
+            choice_value_pure[choice] = cv::sum(choice_roi)[0]/c1.area() ;
         }
 
         int* max_choice = std::max_element(choice_value,choice_value+choiceNumber);
-        if (*max_choice>thresh_choice_value) { //choiced
-            int max_idx = std::distance(choice_value, max_choice) ;
-            for (int choice = 0; choice < choiceNumber; ++choice) {
-                if ( choice!= max_idx &&  ((*max_choice-choice_value[choice])<(thresh_choice_value/(3)) || choice_value[choice]>75)) {
-                    twochoice=true ;
+        int max_idx = std::distance(choice_value, max_choice) ;
+        if (*max_choice>=darkness_threshold || (max -choice_value_pure[max_idx])<50) { //choiced
+
+            choicesSum+= *max_choice ;
+            choicesCounter += 1 ;
+            for (int choice = 0; choice < choiceNumber; ++choice) { //check duplicated choice
+                if ( choice!= max_idx &&  ((*max_choice-choice_value[choice])<=(darkness_threshold/(3)) || choice_value[choice]>75)) {
+
                     cv::Rect c1 = cv::Rect(left_eye_[row+referenceEye].x+ distanceWidth+(choice * distanceChoiceChoice)+(column*columnDistance),
                             ((left_eye_[row+referenceEye].y+distanceHeight)+(right_eye_[row+referenceEye].y+distanceHeight))/2  ,
                             choiceWidth,choiceHeight) ;
 
                     cv::rectangle(img_org,c1,cv::Scalar(0,0,255),2);
-                    c1 = cv::Rect(left_eye_[row+referenceEye].x+ distanceWidth+(max_idx * distanceChoiceChoice)+(column*columnDistance),
-                            ((left_eye_[row+referenceEye].y+distanceHeight)+(right_eye_[row+referenceEye].y+distanceHeight))/2   ,
-                            choiceWidth,choiceHeight) ;
+                    if (!twochoice) {
+                        c1 = cv::Rect(left_eye_[row+referenceEye].x+ distanceWidth+(max_idx * distanceChoiceChoice)+(column*columnDistance),
+                                ((left_eye_[row+referenceEye].y+distanceHeight)+(right_eye_[row+referenceEye].y+distanceHeight))/2   ,
+                                choiceWidth,choiceHeight) ;
 
-                    cv::rectangle(img_org,c1,cv::Scalar(0,0,255),2);
+                        cv::rectangle(img_org,c1,cv::Scalar(0,0,255),2);
+                    }
+                    twochoice=true ;
                 }
 
 
@@ -709,9 +630,8 @@ AnswerSheet::OMRResult AnswerSheet::readChoices(cv::Mat& img_org ,cv::Mat& img ,
 
             }
 
-
         }
-        else {
+        else { //empty
             for (int choice = 0; choice < choiceNumber; ++choice) {
                 cv::Rect c1 = cv::Rect(left_eye_[row+referenceEye].x+ distanceWidth+(choice * distanceChoiceChoice)+(column*columnDistance),
                         ((left_eye_[row+referenceEye].y+distanceHeight)+(right_eye_[row+referenceEye].y+distanceHeight))/2   ,
@@ -731,8 +651,6 @@ AnswerSheet::OMRResult AnswerSheet::readChoices(cv::Mat& img_org ,cv::Mat& img ,
             answer_string+=' ';
         }
 
-
-        ques_counter++ ;
         row++ ;
 
         if(row+referenceEye == left_eye_.size() ) {
@@ -740,11 +658,18 @@ AnswerSheet::OMRResult AnswerSheet::readChoices(cv::Mat& img_org ,cv::Mat& img ,
             row = 0;
 
         }
+        if ( ques_counter == numberOfQuestions-1 && choicesCounter!= 0 &&  choicesSum/choicesCounter<= 75 && firstCheck) { //check the average darkness of choices
+            answer_string = "" ;
+            ques_counter = 0 ,row = 0,  column=0 ;
+            choicesCounter = 0 ;
+            choicesSum = 0 ;
+            darkness_threshold = 30 ;
+            firstCheck = false ;
+        }
     }
-    AnswerSheet::OMRResult result= {answer_string,max} ;
+
+    AnswerSheet::OMRResult result= {answer_string,choicesCounter!= 0 ? choicesSum/choicesCounter : 0} ;
     return result;
-
-
 
 
 }
