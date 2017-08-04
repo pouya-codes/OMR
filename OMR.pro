@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui sql
-CONFIG += c++11
+CONFIG += c++14
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -21,13 +21,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     answersheet.cpp \
     createform.cpp \
-    omrprocess.cpp
+    omrprocess.cpp \
+    clickablelabel.cpp
 
 HEADERS  += mainwindow.h \
     answersheet.h \
     createform.h \
     asmOpenCV.h \
-    omrprocess.h
+    omrprocess.h \
+    clickablelabel.h
 
 FORMS    += mainwindow.ui \
     createform.ui \
@@ -35,4 +37,5 @@ FORMS    += mainwindow.ui \
 
 LIBS +=   -lboost_system \
 -lboost_filesystem \
--lzxing
+-lzxing \
+-lboost_serialization

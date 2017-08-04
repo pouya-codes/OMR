@@ -7,6 +7,25 @@
 #include <QSqlQuery>
 #include <sqlite3.h>
 #include <QSqlQueryModel>
+#include <QFileDialog>
+#include <QDir>
+#include <QObject>
+#include <zxing/common/Counted.h>
+#include <zxing/Binarizer.h>
+#include <zxing/MultiFormatReader.h>
+#include <zxing/Result.h>
+#include <zxing/ReaderException.h>
+#include <zxing/common/GlobalHistogramBinarizer.h>
+#include <zxing/Exception.h>
+#include <zxing/common/IllegalArgumentException.h>
+#include <zxing/BinaryBitmap.h>
+#include <zxing/DecodeHints.h>
+#include <zxing/qrcode/QRCodeReader.h>
+#include <zxing/MultiFormatReader.h>
+#include <zxing/MatSource.h>
+#include <ctime>
+#include <mutex>
+#include <QString>
 
 enum eye_pose {LEFT, RIGHT };
 
@@ -18,6 +37,7 @@ class AnswerSheet
     {
         std::string choices;
         int blackness;
+        QString choiceAreas ;
     };
 public:
     AnswerSheet(cv::Mat img);
@@ -40,6 +60,7 @@ private :
                       std::vector<cv::Rect>& rect_vector , eye_pose pose );
     double findAngle(const std::vector<std::vector<cv::Point> >& squares_left , const std::vector<std::vector<cv::Point> >& squares_right);
     void rotateImage(cv::Mat& image,double angle, std::vector<cv::Rect>& eyes_left , std::vector<cv::Rect>& eyes_right );
+    void rotateImage(cv::Mat& image,double angle);
     void rotateRect(cv::Rect& rect, const cv::Mat & rot);
     AnswerSheet::OMRResult readChoices(cv::Mat& img_org ,cv::Mat& img ,std::vector<cv::Rect> left_eye_,std::vector<cv::Rect> right_eye_);
 

@@ -4,6 +4,24 @@
 #include <QDialog>
 #include "answersheet.h"
 #include <QSqlTableModel>
+#include "ui_omrprocess.h"
+#include "asmOpenCV.h"
+#include <QtSql/qsqldatabase.h>
+#include <QItemSelectionModel>
+#include <QSqlQuery>
+#include <sqlite3.h>
+#include <QSqlQueryModel>
+#include <zbar.h>
+#include <QFileDialog>
+#include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
+#include <fstream>
+#include <QMessageBox>
+#include <QSortFilterProxyModel>
+#include <thread>
+#include <future>
+#include <QMouseEvent>
+
 
 namespace Ui {
 class OMRProcess;
@@ -27,6 +45,7 @@ private slots:
     void getTableNames() ;
     void queryData();
     void handleAfterEdit( QModelIndex index ,QModelIndex index2 ,QVector<int> vector) ;
+    void lableClicked(QMouseEvent* event);
 
 
     void on_tableView_clicked(const QModelIndex &index);
@@ -64,11 +83,21 @@ private slots:
 
     void on_LineEditMain_textChanged(const QString &arg1);
 
+    void on_pushButtonStop_clicked();
+
 private:
     Ui::OMRProcess *ui;
     AnswerSheet* answerSheet ;
     bool running ;
-     QSqlTableModel *dataModel  ;
+    QSqlTableModel *dataModel  ;
+    cv::Mat labelMat ;
+    int selectedRowId  =-1;
+    int editSelectedRowId =-2;
+    QString selectedRowAnswers ;
+    QString selectedRowOrginalPath ;
+    QString selectedRowProcessedPath ;
+    std::vector<std::vector<cv::Rect>> selectedRowAreas;
+    cv::Mat selectedRowImage;
 
 };
 

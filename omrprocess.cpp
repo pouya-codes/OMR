@@ -1,21 +1,4 @@
 #include "omrprocess.h"
-#include "ui_omrprocess.h"
-#include "asmOpenCV.h"
-#include <QtSql/qsqldatabase.h>
-#include <QItemSelectionModel>
-#include <QSqlQuery>
-#include <sqlite3.h>
-#include <QSqlQueryModel>
-#include <zbar.h>
-#include <QFileDialog>
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-#include <fstream>
-#include <QMessageBox>
-#include <QSortFilterProxyModel>
-#include <thread>
-#include <future>
-
 
 
 
@@ -26,13 +9,118 @@ OMRProcess::OMRProcess(QWidget *parent) :
 {
     ui->setupUi(this);
     running = false ;
-
-
     getTableNames();
-
+    connect(ui->label, SIGNAL( clicked(QMouseEvent*)), SLOT(lableClicked(QMouseEvent*)));
 
 }
+void OMRProcess::lableClicked(QMouseEvent* event) {
+    if(running)
+        return ;
+    if(editSelectedRowId!=selectedRowId) {
+        selectedRowAreas.clear();
+        QString querytxt ;
+        querytxt = "SELECT orginalFilePath,processedFilePath,answers,choicesArea FROM " + ui->lineEditTableName->text() + " WHERE id = ?";
+        QSqlQuery query;
+        query.prepare(querytxt);
+        query.bindValue(0, selectedRowId) ;
+        query.exec() ;
+        query.first() ;
+        selectedRowOrginalPath = query.value(0).toString();
+        selectedRowProcessedPath = query.value(1).toString();
+        selectedRowAnswers = query.value(2).toString();
+        QString selectedRowRects = query.value(3).toString();
+        selectedRowImage = cv::imread(selectedRowOrginalPath.toStdString().c_str())  ;
 
+        if(! selectedRowImage.empty())
+        {
+            editSelectedRowId= selectedRowId ;
+            QStringList rows = selectedRowRects.split("*");
+            for (QString row : rows ){
+                QStringList choices = row.split('-') ;
+
+                std::vector<cv::Rect> rowRects ;
+                for (QString choice : choices) {
+                    QStringList rectCordinate = choice.split(',') ;
+                    cv::Rect temp = { rectCordinate[0].toInt() ,rectCordinate[1].toInt() ,rectCordinate[2].toInt() ,rectCordinate[3].toInt() } ;
+                    rowRects.push_back(temp);
+                }
+                selectedRowAreas.push_back(rowRects);
+            }
+
+
+
+        }
+        else {
+            ui->label->setText("تصویر یافت نشد");
+            editSelectedRowId=-2 ;
+        }
+
+
+    }
+    if (editSelectedRowId!=-2) {
+
+
+        for (uint row = 0 ; row < selectedRowAreas.size(); row ++) {
+            for (uint column = 0 ; column < selectedRowAreas[row].size(); column++) {
+                if (selectedRowAreas[row][column].x < event->x() &&
+                    selectedRowAreas[row][column].y < event->y() &&
+                    (selectedRowAreas[row][column].x + selectedRowAreas[row][column].width) > event->x()  &&
+                    (selectedRowAreas[row][column].y + selectedRowAreas[row][column].height) > event->y()) {
+                    if (event->button() == Qt::RightButton) {
+                        selectedRowAnswers[row]=' ';
+                    }
+                    else if (event->button() == Qt::LeftButton) {
+                        if (selectedRowAnswers[row]!=' ' && selectedRowAnswers[row]!=QString::number(column+1)[0] )
+                            selectedRowAnswers[row]='*';
+                        else
+                            selectedRowAnswers[row]=QString::number(column+1)[0];
+                    }
+                }
+            }
+        }
+
+        cv::Mat imgShow ; selectedRowImage.copyTo(imgShow);
+        for (uint row = 0 ; row < selectedRowAreas.size(); row ++) {
+            bool twoChoiced = false ;
+            bool empty = false ;
+            if (selectedRowAnswers[row]=='*')
+                twoChoiced = true ;
+            if (selectedRowAnswers[row]==' ')
+                empty = true ;
+            for (uint column = 0 ; column < selectedRowAreas[row].size(); column++) {
+                if (twoChoiced)
+                    cv::rectangle(imgShow,selectedRowAreas[row][column],cv::Scalar(0,0,255),2) ;
+                else if (empty)
+                    cv::rectangle(imgShow,selectedRowAreas[row][column],cv::Scalar(255,0,0),2) ;
+                else
+                    if(selectedRowAnswers[row]==QString::number(column+1)[0])
+                        cv::rectangle(imgShow,selectedRowAreas[row][column], cv::Scalar(0,255,0),2) ;
+
+            }
+        }
+
+
+        QImage qt_img = ASM::cvMatToQImage( imgShow );
+        ui->label->setPixmap(QPixmap::fromImage(qt_img));
+
+        if(event->button() == Qt::MidButton) {
+            QMessageBox::StandardButton reply;
+            QString message = "آیا تغییرات ایجاد شده ذخیره شود ؟" ;
+            reply = QMessageBox::question(this, "ذخیره تغییرات",message,
+                                          QMessageBox::Yes|QMessageBox::No);
+            if (reply==QMessageBox::Yes) {
+                cv::imwrite(selectedRowProcessedPath.toStdString().c_str(),imgShow) ;
+                QSqlQuery query;
+                QString queryString;
+                queryString = "UPDATE " + ui->lineEditTableName->text() + " SET answers ='" +selectedRowAnswers +"' WHERE id = " + QString::number(selectedRowId) ; // update barcode
+                query.exec(queryString) ;
+                queryData();
+                editSelectedRowId=-2 ;
+            }
+        }
+    }
+
+}
 
 OMRProcess::~OMRProcess()
 {
@@ -64,12 +152,10 @@ void OMRProcess::ProcessImagePath(std::string path,std::string pathOrginal,std::
     cv::glob(inpath, fn, false);
     size_t count = fn.size();
     if (ui->checkBoxMultiThread->isChecked()) {
-        int num_threads = 8 ;
-//        if (count<num_threads)
-//            num_threads=count ;
+        uint num_threads = std::thread::hardware_concurrency();
         size_t filecounter ;
         for (filecounter = 0; filecounter<count; filecounter+=num_threads){
-            if(count- filecounter <num_threads)
+            if(count- filecounter <num_threads || !running)
                 break ;
             std::thread threads[num_threads];
             for (int t=0; t<num_threads; ++t)
@@ -80,21 +166,23 @@ void OMRProcess::ProcessImagePath(std::string path,std::string pathOrginal,std::
             QCoreApplication::processEvents();
         }
         int remainFiles = count-filecounter ;
-        if (remainFiles!=0) {
-                std::thread threads[remainFiles];
-                for (int i=0; i<remainFiles; ++i)
-                    threads[i] = std::thread(&OMRProcess::ProcessImage,this,fn[filecounter+i],pathOrginal,pathProcessed,pathError);
-                for (auto& th : threads) th.join();
-                //                ui->labelStatus->setText("تعداد کل تصاویر:"+ QString(count) + " باقی مانده "+ QString(std::abs(count-i) ));
-                queryData() ;
-                ui->tableView->scrollToBottom();
-                QCoreApplication::processEvents();
+        if (remainFiles!=0 && running) {
+            std::thread threads[remainFiles];
+            for (int i=0; i<remainFiles; ++i)
+                threads[i] = std::thread(&OMRProcess::ProcessImage,this,fn[filecounter+i],pathOrginal,pathProcessed,pathError);
+            for (auto& th : threads) th.join();
+            //                ui->labelStatus->setText("تعداد کل تصاویر:"+ QString(count) + " باقی مانده "+ QString(std::abs(count-i) ));
+            queryData() ;
+            ui->tableView->scrollToBottom();
+            QCoreApplication::processEvents();
 
         }
 
     }
     else {
         for (size_t i=0; i<count; i++){
+            if(!running)
+                break ;
             cv::Mat resultImage =ProcessImage(fn[i],pathOrginal,pathProcessed,pathError) ;
             if ( !resultImage.empty()) {
                 cv::resize(resultImage, resultImage,cv::Size(ui->label->width(),ui->label->height())) ;
@@ -141,7 +229,7 @@ std::string createRecurciveDirectory(std::string path) {
 
 void OMRProcess::on_pushButton_clicked()
 {
-    running=true ;
+
     QSqlQuery query;
     query.prepare("SELECT name FROM sqlite_master WHERE type = 'table' and name = ?");
     query.bindValue(0, ui->lineEditTableName->text());
@@ -168,6 +256,8 @@ void OMRProcess::on_pushButton_clicked()
                                                        | QFileDialog::DontResolveSymlinks);
 
     if(source!="") {
+        running=true ;
+        ui->pushButtonStop->setEnabled(true);
 
         ProcessImagePath(source.toStdString(),
                          createRecurciveDirectory(ui->lineEditOrginalPath->text().toStdString()) ,
@@ -208,7 +298,7 @@ void OMRProcess::on_pushButton_2_clicked()
 
 void OMRProcess::setPicture (int id) {
     if (running) return ;
-
+    selectedRowId = id ;
     QString querytxt ;
     querytxt = "SELECT orginalFilePath,processedFilePath FROM " + ui->lineEditTableName->text() + " WHERE id = ?";
     QSqlQuery query;
@@ -218,12 +308,12 @@ void OMRProcess::setPicture (int id) {
     query.first() ;
     QString orginal_path = query.value(0).toString();
     QString processed_path = query.value(1).toString();
-    cv::Mat image = ui->radioButtonProcessed->isChecked() ? cv::imread(processed_path.toStdString().c_str()) :cv::imread(orginal_path.toStdString().c_str()) ;
+    labelMat = ui->radioButtonProcessed->isChecked() ? cv::imread(processed_path.toStdString().c_str()) :cv::imread(orginal_path.toStdString().c_str()) ;
     //    std::cout << processed_path.toStdString() << id << std::endl ;
-    if(! image.empty())
+    if(! labelMat.empty())
     {
-        cv::resize(image, image,cv::Size(ui->label->width(),ui->label->height())) ;
-        QImage qt_img = ASM::cvMatToQImage( image );
+        cv::resize(labelMat, labelMat,cv::Size(ui->scrollArea->width(),ui->scrollArea->height())) ;
+        QImage qt_img = ASM::cvMatToQImage( labelMat );
         ui->label->setPixmap(QPixmap::fromImage(qt_img));
     }
     else {
@@ -277,7 +367,7 @@ void OMRProcess::on_radioButtonOrginal_clicked(bool checked)
 
 void OMRProcess::queryData() {
 
-
+    editSelectedRowId = -2 ;
     dataModel = new QSqlTableModel();
     connect(dataModel, SIGNAL( dataChanged(QModelIndex,QModelIndex,QVector<int>)), SLOT(handleAfterEdit(QModelIndex,QModelIndex,QVector<int>)));
 
@@ -306,12 +396,13 @@ void OMRProcess::queryData() {
     }
 
     if (ui->checkBoxLowColors->isChecked()) {
-        dataModel->setFilter("maxblackness <= 75 and LENGTH(REPLACE(answers, ' ', '')) != 0");
+        dataModel->setFilter("averageBlackness <= 75 and LENGTH(REPLACE(answers, ' ', '')) != 0 order by averageBlackness");
     }
 
     dataModel->select();
     dataModel->removeColumn(2);
     dataModel->removeColumn(1);
+    dataModel->removeColumn(4);
     dataModel->removeColumn(4);
     dataModel->setHeaderData(0, Qt::Orientation::Horizontal, tr("ID"));
     dataModel->setHeaderData(1,  Qt::Orientation::Horizontal, tr("Code"));
@@ -383,7 +474,6 @@ void OMRProcess::handleAfterEdit( QModelIndex index ,QModelIndex index2 ,QVector
 
     queryString = "UPDATE " + ui->lineEditTableName->text() + " SET code ='" +barcodenew + "',orginalFilePath ='"+newOrginalFilePath + "',processedFilePath='" +newProcessedFilePath + "' WHERE id = " + id ; // update barcode
     query.exec(queryString) ;
-    //    std::cout << id.toStdString()  << "-" << barcode.toStdString()  << "-" << barcodenew.toStdString()<<  "-" << queryString.toStdString() << std::endl ;
 }
 
 void OMRProcess::on_pushButton_3_clicked()
@@ -455,4 +545,10 @@ void OMRProcess::on_LineEditMain_textChanged(const QString &arg1)
     ui->lineEditOrginalPath->setText(arg1 +"/Orginal");
     ui->lineEditProcessedPath->setText(arg1 +"/Processed");
 
+}
+
+void OMRProcess::on_pushButtonStop_clicked()
+{
+    running = false ;
+    ui->pushButtonStop->setEnabled(false);
 }
