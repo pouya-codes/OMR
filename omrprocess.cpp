@@ -1,8 +1,5 @@
 #include "omrprocess.h"
 
-
-
-
 OMRProcess::OMRProcess(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::OMRProcess)
@@ -12,10 +9,20 @@ OMRProcess::OMRProcess(QWidget *parent) :
     getTableNames();
     connect(ui->label, SIGNAL( clicked(QMouseEvent*)), SLOT(lableClicked(QMouseEvent*)));
 
+
 }
+/*
+ * edit answersheet choices on mouse click
+ * first left key enable editing mode
+ * for changing selected choice press left mouse button
+ * for cleaning selected choice press right mouse button
+ * for saving changes preess midle mouse button
+
+  */
 void OMRProcess::lableClicked(QMouseEvent* event) {
     if(running)
         return ;
+    // query data from database and set global variables
     if(editSelectedRowId!=selectedRowId) {
         selectedRowAreas.clear();
         QString querytxt ;
@@ -30,7 +37,7 @@ void OMRProcess::lableClicked(QMouseEvent* event) {
         selectedRowAnswers = query.value(2).toString();
         QString selectedRowRects = query.value(3).toString();
         selectedRowImage = cv::imread(selectedRowOrginalPath.toStdString().c_str())  ;
-
+        //deserialize squre position and add them to selectedRowAreas
         if(! selectedRowImage.empty())
         {
             editSelectedRowId= selectedRowId ;
@@ -59,13 +66,13 @@ void OMRProcess::lableClicked(QMouseEvent* event) {
     }
     if (editSelectedRowId!=-2) {
 
-
+        // search in selectedRowAreas for a squre that include clicked mouse position
         for (uint row = 0 ; row < selectedRowAreas.size(); row ++) {
             for (uint column = 0 ; column < selectedRowAreas[row].size(); column++) {
                 if (selectedRowAreas[row][column].x < event->x() &&
-                    selectedRowAreas[row][column].y < event->y() &&
-                    (selectedRowAreas[row][column].x + selectedRowAreas[row][column].width) > event->x()  &&
-                    (selectedRowAreas[row][column].y + selectedRowAreas[row][column].height) > event->y()) {
+                        selectedRowAreas[row][column].y < event->y() &&
+                        (selectedRowAreas[row][column].x + selectedRowAreas[row][column].width) > event->x()  &&
+                        (selectedRowAreas[row][column].y + selectedRowAreas[row][column].height) > event->y()) {
                     if (event->button() == Qt::RightButton) {
                         selectedRowAnswers[row]=' ';
                     }
@@ -78,7 +85,7 @@ void OMRProcess::lableClicked(QMouseEvent* event) {
                 }
             }
         }
-
+        // draw student choices on orginal image
         cv::Mat imgShow ; selectedRowImage.copyTo(imgShow);
         for (uint row = 0 ; row < selectedRowAreas.size(); row ++) {
             bool twoChoiced = false ;
@@ -103,6 +110,7 @@ void OMRProcess::lableClicked(QMouseEvent* event) {
         QImage qt_img = ASM::cvMatToQImage( imgShow );
         ui->label->setPixmap(QPixmap::fromImage(qt_img));
 
+        // save changes
         if(event->button() == Qt::MidButton) {
             QMessageBox::StandardButton reply;
             QString message = "آیا تغییرات ایجاد شده ذخیره شود ؟" ;
@@ -161,6 +169,7 @@ void OMRProcess::ProcessImagePath(std::string path,std::string pathOrginal,std::
             for (int t=0; t<num_threads; ++t)
                 threads[t] = std::thread(&OMRProcess::ProcessImage,this,fn[filecounter+t],pathOrginal,pathProcessed,pathError);
             for (auto& th : threads) th.join();
+            ui->labelStatus->setText("تعداد کل فایل ها: "+QString::number(count)+" , پردازش شده:"+QString::number(filecounter+num_threads)+" , باقی مانده:"+QString::number(count- filecounter-num_threads));
             queryData() ;
             ui->tableView->scrollToBottom();
             QCoreApplication::processEvents();
@@ -172,6 +181,7 @@ void OMRProcess::ProcessImagePath(std::string path,std::string pathOrginal,std::
                 threads[i] = std::thread(&OMRProcess::ProcessImage,this,fn[filecounter+i],pathOrginal,pathProcessed,pathError);
             for (auto& th : threads) th.join();
             //                ui->labelStatus->setText("تعداد کل تصاویر:"+ QString(count) + " باقی مانده "+ QString(std::abs(count-i) ));
+            ui->labelStatus->setText("تعداد کل فایل ها: "+QString::number(count)+" , پردازش شده:"+QString::number(filecounter+remainFiles)+" , باقی مانده:"+QString::number(count- filecounter-remainFiles));
             queryData() ;
             ui->tableView->scrollToBottom();
             QCoreApplication::processEvents();
@@ -180,14 +190,15 @@ void OMRProcess::ProcessImagePath(std::string path,std::string pathOrginal,std::
 
     }
     else {
-        for (size_t i=0; i<count; i++){
+        for (size_t filecounter=0; filecounter<count; filecounter++){
             if(!running)
                 break ;
-            cv::Mat resultImage =ProcessImage(fn[i],pathOrginal,pathProcessed,pathError) ;
+            cv::Mat resultImage =ProcessImage(fn[filecounter],pathOrginal,pathProcessed,pathError) ;
             if ( !resultImage.empty()) {
                 cv::resize(resultImage, resultImage,cv::Size(ui->label->width(),ui->label->height())) ;
                 QImage qt_img = ASM::cvMatToQImage( resultImage );
                 ui->label->setPixmap(QPixmap::fromImage(qt_img));
+                ui->labelStatus->setText("تعداد کل فایل ها: "+QString::number(count)+" , پردازش شده:"+QString::number(filecounter+1)+" , باقی مانده:"+QString::number(count- filecounter-1));
                 queryData() ;
                 ui->tableView->scrollToBottom();
                 QCoreApplication::processEvents();
@@ -267,6 +278,7 @@ void OMRProcess::on_pushButton_clicked()
     }
 
     running=false ;
+    ui->pushButtonStop->setEnabled(false);
 
 }
 
@@ -410,6 +422,8 @@ void OMRProcess::queryData() {
     dataModel->setHeaderData(3,  Qt::Orientation::Horizontal, tr("Date"));
 
     ui->tableView->setModel(dataModel);
+    QItemSelectionModel *sm = ui->tableView->selectionModel();
+    connect(sm,SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(on_tableViewSelectionModel_currentRowChanged(QModelIndex,QModelIndex)) );
 
 }
 
@@ -551,4 +565,9 @@ void OMRProcess::on_pushButtonStop_clicked()
 {
     running = false ;
     ui->pushButtonStop->setEnabled(false);
+}
+
+void OMRProcess::on_tableViewSelectionModel_currentRowChanged(QModelIndex index1, QModelIndex index2){
+    int id = index1.sibling(index1.row(), 0).data().toInt();
+    setPicture(id) ;
 }

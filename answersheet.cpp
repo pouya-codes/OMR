@@ -102,7 +102,7 @@ void AnswerSheet::DetectEyes (int pad_rectangle) {
     cv::vector<cv::vector<cv::Point>> squares_left,squares_right;
     int a = findSquares(image, squares_left,left_rect);
     int b = findSquares(image, squares_right,right_rect);
-    //std::cout << a <<"-" << b << std::endl ;
+
     if(a == b ) {
         eye_number =a ;
 
@@ -114,10 +114,15 @@ void AnswerSheet::DetectEyes (int pad_rectangle) {
 
         int c = findSquares(image, squares_left,left_rect);
         int d = findSquares(image, squares_right,right_rect);
-        //        std::cout << c <<"-" << d<< std::endl ;
+
         if(c == d and c== a ) {
             sortSquares(squares_left,left_eye,LEFT);
             sortSquares(squares_right,right_eye,RIGHT);
+
+            angle = findAngle(squares_left,squares_right);
+            rotateImage(image,angle,left_eye,right_eye);
+            cv::resize(image,image,resize_size) ;
+
             drawSquares(image, left_eye);
             drawSquares(image, right_eye);
         }
@@ -245,8 +250,17 @@ int AnswerSheet::findSquares( const cv::Mat& image, std::vector<std::vector<cv::
     cv::Mat thr ;
     cv::Mat roi_image= image(area) ;
     cv::cvtColor(roi_image,thr,cv::COLOR_BGR2GRAY) ;
-    thr(cv::Rect(0,0,thr.cols,60)) = cv::Scalar(255) ;
-    thr(cv::Rect(0,thr.rows-60,roi_image.cols,60)) = cv::Scalar(255) ;
+
+    //add white padding to eyes areas
+    thr(cv::Rect(0,0,thr.cols,40)) = cv::Scalar(255) ;
+    thr(cv::Rect(0,thr.rows-40,roi_image.cols,40)) = cv::Scalar(255) ;
+
+    if(area.x<600)
+        thr(cv::Rect(0,0,20,thr.rows)) = cv::Scalar(255) ;
+    else
+        thr(cv::Rect(thr.cols-20,0,20,thr.rows)) = cv::Scalar(255) ;
+
+
     cv::threshold(thr,thr,130,255,cv::THRESH_BINARY_INV) ;
     int dilation_size = 1 ;
     cv::Mat element = getStructuringElement( cv::MORPH_RECT,
@@ -258,6 +272,7 @@ int AnswerSheet::findSquares( const cv::Mat& image, std::vector<std::vector<cv::
 
     cv::vector<cv::Point> approx;
 
+    //find squre shapes
     for( size_t i = 0; i < contours.size(); i++ )
     {
         cv::approxPolyDP(cv::Mat(contours[i])   , approx, arcLength(cv::Mat(contours[i]), true)*0.10, true);
@@ -428,6 +443,7 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
         sortSquares(squares_left,left_eye_,LEFT);
         sortSquares(squares_right,right_eye_,RIGHT);
         double angle = findAngle(squares_left,squares_right);
+
         rotateImage(img_resize,angle,left_eye_,right_eye_);
         rotateImage(img_resized_omitcolors,angle);
         rotateImage(img_orginal,angle);
@@ -438,12 +454,18 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
 
         int c = findSquares(img_resized_omitcolors, squares_left,left_rect);
         int d = findSquares(img_resized_omitcolors, squares_right,right_rect);
-        sortSquares(squares_left,left_eye_,LEFT);
-        sortSquares(squares_right,right_eye_,RIGHT);
-
-        img_resize.copyTo(img_resize_out);
 
         if(c == d and c== a ) {
+            sortSquares(squares_left,left_eye_,LEFT);
+            sortSquares(squares_right,right_eye_,RIGHT);
+
+            angle = findAngle(squares_left,squares_right);
+
+            rotateImage(img_resize,angle,left_eye_,right_eye_);
+            rotateImage(img_resized_omitcolors,angle);
+            rotateImage(img_orginal,angle);
+
+            img_resize.copyTo(img_resize_out);
 
             OMRresult = readChoices(img_resize_out,img_resized_omitcolors,left_eye_,right_eye_) ;
         }
@@ -670,7 +692,7 @@ AnswerSheet::OMRResult AnswerSheet::readChoices(cv::Mat& img_org ,cv::Mat& img ,
             ques_counter = 0 ,row = 0,  column=0 ;
             choicesCounter = 0 ;
             choicesSum = 0 ;
-            darkness_threshold = 20 ;
+            darkness_threshold = 30 ;
             firstCheck = false ;
             img_org.copyTo(img_process);
         }

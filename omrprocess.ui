@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1088</width>
-    <height>811</height>
+    <width>1193</width>
+    <height>890</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -90,17 +90,31 @@
        <property name="horizontalSpacing">
         <number>6</number>
        </property>
-       <item row="3" column="0">
-        <widget class="QLabel" name="Label_3">
+       <item row="0" column="0">
+        <widget class="QLabel" name="Label_4">
          <property name="text">
-          <string>محل ذخیره خطا  </string>
+          <string>میسر ذخیره سازی</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="lineEditErrorPath">
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="LineEditMain">
          <property name="text">
-          <string>/home/pouya/Develop/OMR/Error</string>
+          <string>/home/pouya/Develop/OMR</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="Label">
+         <property name="text">
+          <string>فایل اصلی  </string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="lineEditOrginalPath">
+         <property name="text">
+          <string>/home/pouya/Develop/OMR/Orginal</string>
          </property>
         </widget>
        </item>
@@ -118,17 +132,17 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="Label">
+       <item row="3" column="0">
+        <widget class="QLabel" name="Label_3">
          <property name="text">
-          <string>فایل اصلی  </string>
+          <string>محل ذخیره خطا  </string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="lineEditOrginalPath">
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="lineEditErrorPath">
          <property name="text">
-          <string>/home/pouya/Develop/OMR/Orginal</string>
+          <string>/home/pouya/Develop/OMR/Error</string>
          </property>
         </widget>
        </item>
@@ -170,20 +184,6 @@
          </item>
         </layout>
        </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="Label_4">
-         <property name="text">
-          <string>میسر ذخیره سازی</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="LineEditMain">
-         <property name="text">
-          <string>/home/pouya/Develop/OMR</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </item>
      <item row="0" column="1">
@@ -196,27 +196,14 @@
        </property>
        <item>
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="1" column="0">
-          <widget class="QPushButton" name="pushButton_2">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>1</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>صدور نتایج</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
+         <item row="6" column="1">
           <widget class="QCheckBox" name="checkBoxDuplicated">
            <property name="text">
             <string>نمایش کدهای تکراری</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
+         <item row="6" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
             <widget class="QCheckBox" name="checkBoxTwoChoices">
@@ -234,7 +221,7 @@
            </item>
           </layout>
          </item>
-         <item row="7" column="0">
+         <item row="8" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
             <widget class="QLineEdit" name="lineEditSearch">
@@ -258,38 +245,14 @@
            </item>
           </layout>
          </item>
-         <item row="7" column="1">
+         <item row="8" column="1">
           <widget class="QCheckBox" name="checkBoxApsent">
            <property name="text">
             <string>مشکوک به غایب</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <item>
-            <widget class="QCheckBox" name="checkBoxMultiThread">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButton">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>1</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>پردازش تصویر</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="3" column="0">
+         <item row="4" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout_7">
            <item>
             <widget class="QRadioButton" name="radioButtonOrginal">
@@ -310,12 +273,71 @@
            </item>
           </layout>
          </item>
-         <item row="3" column="1">
+         <item row="4" column="1">
           <widget class="QCheckBox" name="checkBoxLowColors">
            <property name="text">
             <string>پاسخنامه های کمرنگ</string>
            </property>
           </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QPushButton" name="pushButton_2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>1</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>صدور نتایج</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QPushButton" name="pushButtonSingleFile">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>1</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>پردازش تصویر</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBoxMultiThread">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>1</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>اجرای موازی</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>1</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>پردازش تصاویر</string>
+             </property>
+             <property name="default">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>
@@ -334,8 +356,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>529</width>
-          <height>573</height>
+          <width>582</width>
+          <height>652</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_10">

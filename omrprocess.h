@@ -40,6 +40,7 @@ private slots:
     void on_pushButton_clicked();
     void ProcessImagePath(std::string path,std::string pathOrginal,std::string pathProcessed,std::string pathError) ;
     cv::Mat ProcessImage(cv::String imagePath,std::string pathOrginal,std::string pathProcessed,std::string pathError) ;
+    void on_tableViewSelectionModel_currentRowChanged(QModelIndex index1,QModelIndex index2);
 
     void on_pushButton_2_clicked();
     void getTableNames() ;
