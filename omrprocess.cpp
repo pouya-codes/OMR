@@ -5,9 +5,11 @@ OMRProcess::OMRProcess(QWidget *parent) :
     ui(new Ui::OMRProcess)
 {
     ui->setupUi(this);
+    answerSheet->openDB("OMR_Results.db");
     running = false ;
     getTableNames();
     connect(ui->label, SIGNAL( clicked(QMouseEvent*)), SLOT(lableClicked(QMouseEvent*)));
+
 
 
 }
@@ -53,8 +55,6 @@ void OMRProcess::lableClicked(QMouseEvent* event) {
                 }
                 selectedRowAreas.push_back(rowRects);
             }
-
-
 
         }
         else {
@@ -206,10 +206,6 @@ void OMRProcess::ProcessImagePath(std::string path,std::string pathOrginal,std::
         }
 
     }
-
-
-
-
 }
 
 void OMRProcess::getTableNames() {
@@ -250,11 +246,13 @@ void OMRProcess::on_pushButton_clicked()
         reply = QMessageBox::question(this, "ایجاد جدول جدید","جدول موجود نیست آیا ایجاد شود؟",
                                       QMessageBox::Yes|QMessageBox::No);
         if (reply==QMessageBox::Yes) {
+            QString table_name = ui->lineEditTableName->text();
             if (answerSheet->createTable(ui->lineEditTableName->text())) {
                 QMessageBox::information(this , "عملیات موفق","جدول با موفقیت ایجاد شد.") ;
             }
             getTableNames();
-            ui->comboBoxDbNames->setCurrentIndex(ui->comboBoxDbNames->findText(ui->lineEditTableName->text())) ;
+            ui->comboBoxDbNames->setCurrentIndex(ui->comboBoxDbNames->findText(table_name)) ;
+
         }
         else {
             running= false ;
@@ -423,7 +421,7 @@ void OMRProcess::queryData() {
 
     ui->tableView->setModel(dataModel);
     QItemSelectionModel *sm = ui->tableView->selectionModel();
-    connect(sm,SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(on_tableViewSelectionModel_currentRowChanged(QModelIndex,QModelIndex)) );
+    connect(sm,SIGNAL(currentRowChanged(QModelIndex,QModelIndex) ),this,SLOT(on_tableViewSelectionModel_currentRowChanged(QModelIndex,QModelIndex)) );
 
 }
 
@@ -570,4 +568,11 @@ void OMRProcess::on_pushButtonStop_clicked()
 void OMRProcess::on_tableViewSelectionModel_currentRowChanged(QModelIndex index1, QModelIndex index2){
     int id = index1.sibling(index1.row(), 0).data().toInt();
     setPicture(id) ;
+}
+
+void OMRProcess::on_pushButton_4_clicked()
+{
+    QString queryStringPath = "DELETE * FROM "+ ui->lineEditTableName->text();
+    QSqlQuery queryPath;
+    queryPath.exec(queryStringPath) ;
 }

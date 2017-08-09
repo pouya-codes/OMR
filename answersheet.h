@@ -50,6 +50,7 @@ public:
     cv::Mat ProcessImage (cv::Mat img_process,QString table_name,std::string out_path_orginal,std::string out_path_processd,std::string out_path_error);
     bool createTable(QString tableName) ;
     bool deleteTable(QString tableName) ;
+    void openDB(QString dbName);
 
 
 private :
@@ -63,6 +64,7 @@ private :
     void rotateImage(cv::Mat& image,double angle);
     void rotateRect(cv::Rect& rect, const cv::Mat & rot);
     AnswerSheet::OMRResult readChoices(cv::Mat& img_org ,cv::Mat& img ,std::vector<cv::Rect> left_eye_,std::vector<cv::Rect> right_eye_);
+
 
 
 };

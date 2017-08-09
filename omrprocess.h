@@ -86,6 +86,8 @@ private slots:
 
     void on_pushButtonStop_clicked();
 
+    void on_pushButton_4_clicked();
+
 private:
     Ui::OMRProcess *ui;
     AnswerSheet* answerSheet ;
