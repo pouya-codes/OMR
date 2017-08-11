@@ -1,10 +1,13 @@
 #include "answersheet.h"
 #include "ui_mainwindow.h"
+#include <QZXing.h>
+#include <asmOpenCV.h>
 
 
 
-using namespace zxing;
-using namespace zxing::qrcode;
+
+//using namespace zxing;
+//using namespace zxing::qrcode;
 
 
 
@@ -21,7 +24,8 @@ choiceNumber,  distanceChoiceChoice, numberOfQuestions,  columnDistance ,
 barcodeX,barcodeY,barcodeWidth,barcodeHeight;
 cv::Size resize_size = cv::Size(1248,1755) ;
 cv::Size orginal_size ;
-Ref<Reader> reader;
+//Ref<Reader> reader;
+//QZXing decoder;
 QSqlDatabase db;
 std::mutex mtx;
 
@@ -82,7 +86,8 @@ AnswerSheet::AnswerSheet(cv::Mat img)
     cv::resize(img,image,resize_size) ;
     image_width =  image.cols;
     image_height = image.rows;
-    reader.reset(new MultiFormatReader);
+    //    reader.reset(new MultiFormatReader);
+
 
 
 }
@@ -410,13 +415,13 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
         img_process.copyTo(img_resize);
     }
     img_resize.copyTo(img_resized_omitcolors);
+
     omitColors(img_resized_omitcolors);
 
     cv::Rect left_rect = cv::Rect(0,0,pad_rect,img_resize.rows);
     cv::Rect right_rect = cv::Rect(img_resize.cols-pad_rect,0,pad_rect,img_resize.rows);
 
     std::vector<cv::Rect> left_eye_sheet,right_eye_sheet;
-
 
     cv::vector<cv::vector<cv::Point>> squares_left,squares_right;
     int a = findSquares(img_resized_omitcolors, squares_left,left_rect);
@@ -460,38 +465,20 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
 
         cv::Mat(img_process(cv::Rect(barcodeX*resize_factor,barcodeY*resize_factor,barcodeWidth*resize_factor,barcodeHeight*resize_factor))).copyTo(gray_barcode);
         cv::cvtColor(gray_barcode,gray_barcode,cv::COLOR_BGR2GRAY) ;
-        //        cv::imwrite("ZXing.jpg", gray_barcode);
 
-        int resultPointCount= 0 ;
-        mtx.lock();
-        try {
+        QZXing decoder;
+        decoder.setDecoder(QZXing::DecoderFormat_QR_CODE | QZXing::DecoderFormat_CODE_128 );
 
-            Ref<LuminanceSource> source = MatSource::create(gray_barcode);
-            Ref<Binarizer> binarizer(new GlobalHistogramBinarizer(source));
-            Ref<BinaryBitmap> bitmap(new BinaryBitmap(binarizer));
-            Ref<Result> result(reader->decode(bitmap, DecodeHints(DecodeHints::TRYHARDER_HINT)));
-            resultPointCount = result->getResultPoints()->size();
+        barcode = decoder.decodeImage(ASM::cvMatToQImage(gray_barcode)).toStdString();
 
-            if (resultPointCount > 0) {
-                barcode =  result->getText()->getText();
-                cv::putText(img_resize_out, barcode, cv::Point(barcodeX,barcodeY+barcodeHeight), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar( 255, 0, 0 ),2);
-            }
-
-        }      catch (const ReaderException& e) {
-            std::cout << e.what() << " (ignoring)" << std::endl;
-        } catch (const zxing::IllegalArgumentException& e) {
-            std::cout << e.what() << " (ignoring)" << std::endl;
-        } catch (const zxing::Exception& e) {
-            std::cout << e.what() << " (ignoring)" << std::endl;
-        } catch (const std::exception& e) {
-            std::cout << e.what() << " (ignoring)" << std::endl;
+        if (barcode.size() != 0) {
+            cv::putText(img_resize_out, barcode, cv::Point(barcodeX,barcodeY+barcodeHeight), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar( 255, 0, 0 ),2);
         }
-        mtx.unlock();
-
-
-        if (resultPointCount == 0)  {
+        else {
             barcode= currentDateTime() ;
         }
+
+        //save orginal and processed file
         std::string file_name_org , file_name_proc ;
 
         file_name_proc = out_path_processd + barcode + ".jpg";
@@ -500,13 +487,12 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
         file_name_org = out_path_orginal + barcode + ".jpg";
         cv::imwrite(file_name_org,img_resize) ;
 
-        //        std::cout << barcode << ":" << OMRresult.blackness << std::endl ;
-
+        //insert result to table
         QSqlQuery query;
         QString querytxt = "INSERT INTO " + table_name + " ( code, answers,orginalFilePath,processedFilePath,date,averageBlackness,choicesArea) "
                                                          "VALUES ( :code, :answers , :orginalFilePath ,:processedFilePath,:date,:averageBlackness,:choicesArea)" ;
         query.prepare(querytxt);
-        query.bindValue(":code", resultPointCount == 0 ? " " : QString::fromStdString( barcode));
+        query.bindValue(":code", barcode.size() == 0 ? " " : QString::fromStdString( barcode));
         query.bindValue(":answers", QString::fromStdString(OMRresult.choices));
         query.bindValue(":orginalFilePath", QString::fromStdString(file_name_org));
         query.bindValue(":processedFilePath", QString::fromStdString(file_name_proc));
@@ -516,8 +502,6 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
         query.exec();
 
         return img_resize_out ;
-
-
 
     }
     else {

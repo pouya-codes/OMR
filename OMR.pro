@@ -17,6 +17,7 @@ unix: PKGCONFIG += opencv
 
 
 
+
 SOURCES += main.cpp\
         mainwindow.cpp \
     answersheet.cpp \
@@ -37,5 +38,7 @@ FORMS    += mainwindow.ui \
 
 LIBS +=   -lboost_system \
 -lboost_filesystem \
--lzxing \
+#-lzxing \
 -lboost_serialization
+
+include(QZXing/QZXing.pri)
