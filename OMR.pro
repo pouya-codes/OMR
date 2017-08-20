@@ -36,9 +36,4 @@ FORMS    += mainwindow.ui \
     createform.ui \
     omrprocess.ui
 
-LIBS +=   -lboost_system \
--lboost_filesystem \
-#-lzxing \
--lboost_serialization
-
 include(QZXing/QZXing.pri)

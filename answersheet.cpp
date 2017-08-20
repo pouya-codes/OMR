@@ -16,8 +16,8 @@ const char* wndname = "Remove Colors";
 std::vector<std::vector<cv::Vec3b>> omit_colors ;
 int image_width,image_height;
 void mouseHandler (int event, int x, int y, int flags, void *userdata);
-int color_omit_rang = 30 ;
-int thresh_choice_value = 45;
+int color_omit_rang = 35 ;
+int thresh_choice_value = 40;
 int eye_number ;
 int pad_rect , referenceEye, distanceWidth, distanceHeight, choiceWidth, choiceHeight,
 choiceNumber,  distanceChoiceChoice, numberOfQuestions,  columnDistance ,
@@ -27,7 +27,10 @@ cv::Size orginal_size ;
 //Ref<Reader> reader;
 //QZXing decoder;
 QSqlDatabase db;
-std::mutex mtx;
+
+cv::Mat elementErode  = getStructuringElement( cv::MORPH_RECT,cv::Size(3,3), cv::Point(1,1));
+cv::Mat elementDilate = getStructuringElement( cv::MORPH_RECT,cv::Size(5,5), cv::Point(2,2));
+
 
 int temp_counter = 0 ;
 int error_counter = 0 ;
@@ -111,11 +114,12 @@ void AnswerSheet::DetectEyes (int pad_rectangle) {
     int a = findSquares(image, squares_left,left_rect);
     int b = findSquares(image, squares_right,right_rect);
 
+    sortSquares(squares_left,left_eye,LEFT);
+    sortSquares(squares_right,right_eye,RIGHT);
+
     if(a == b ) {
         eye_number =a ;
 
-        sortSquares(squares_left,left_eye,LEFT);
-        sortSquares(squares_right,right_eye,RIGHT);
         double angle = findAngle(squares_left,squares_right);
         rotateImage(image,angle,left_eye,right_eye);
 
@@ -128,19 +132,12 @@ void AnswerSheet::DetectEyes (int pad_rectangle) {
 
             angle = findAngle(squares_left,squares_right);
             rotateImage(image,angle,left_eye,right_eye);
-
-            drawSquares(image, left_eye);
-            drawSquares(image, right_eye);
         }
 
 
     }
-    else {
-        sortSquares(squares_left,left_eye,LEFT);
-        sortSquares(squares_right,right_eye,RIGHT);
-        drawSquares(image, left_eye);
-        drawSquares(image, right_eye);
-    }
+    drawSquares(image, left_eye);
+    drawSquares(image, right_eye);
 
 
 }
@@ -193,16 +190,23 @@ void AnswerSheet::RemoveColorsDialog() {
     cv::namedWindow( wndname, 1 );
     cv::setMouseCallback(wndname,mouseHandler) ;
     cv::imshow(wndname,image) ;
-    char c = (char)cv::waitKey();
-    if( c == 27 ) {
-        cv::destroyAllWindows();
-        return ;
+    try {
+        char c = (char)cv::waitKey();
+        if( c == 27 ) {
+            cv::destroyAllWindows();
+            return ;
+
+        }
+        if(c== 'c') {
+            cv::destroyAllWindows();
+            return ;
+        }
+    }
+    catch (const std::exception e){
 
     }
-    if(c== 'c') {
-        cv::destroyAllWindows();
-        return ;
-    }
+
+
 }
 
 void omitColors(cv::Mat& img) {
@@ -268,11 +272,10 @@ int AnswerSheet::findSquares( const cv::Mat& image, std::vector<std::vector<cv::
 
 
     cv::threshold(thr,thr,130,255,cv::THRESH_BINARY_INV) ;
-    int dilation_size = 1 ;
-    cv::Mat element = getStructuringElement( cv::MORPH_RECT,
-                                             cv::Size( 2*dilation_size + 1, 2*dilation_size+1 ),
-                                             cv::Point( dilation_size, dilation_size ) );
-    cv::dilate(thr, thr, element);
+
+    cv::erode(thr, thr, elementErode);
+
+    cv::dilate(thr, thr, elementDilate);
 
     cv::vector<cv::vector<cv::Point> > contours;
     cv::findContours(thr, contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
@@ -284,7 +287,7 @@ int AnswerSheet::findSquares( const cv::Mat& image, std::vector<std::vector<cv::
     {
         cv::approxPolyDP(cv::Mat(contours[i])   , approx, arcLength(cv::Mat(contours[i]), true)*0.10, true);
         if( approx.size() == 4 &&
-                fabs(contourArea(cv::Mat(approx))) > 150 && fabs(contourArea(cv::Mat(approx))) < 600 &&
+                fabs(contourArea(cv::Mat(approx))) > 50 && fabs(contourArea(cv::Mat(approx))) < 600 &&
                 cv::isContourConvex(cv::Mat(approx)) )
         {
             double maxCosine = 0;
@@ -376,10 +379,10 @@ double AnswerSheet::findAngle(const std::vector<std::vector<cv::Point> >& square
 
     cv::Point p_1 = squares_left[eye_number -1][0] ;
     cv::Point p_2 = squares_right[eye_number -1][0] ;
-    double ang1 = atan (double(p_2.y-p_1.y)/((p_2.x+image_width-pad_rect)-p_1.x) * 180 / PI) ;
+    double ang1 = atan (double(p_2.y-p_1.y)/(((p_2.x+image_width-pad_rect)/2)-p_1.x) * 180 / PI) ;
     p_1 = squares_left[0][0] ;
     p_2 = squares_right[0][0] ;
-    double ang2 = atan (double(p_2.y-p_1.y)/((p_2.x+image_width-pad_rect)-p_1.x) * 180 / PI) ;
+    double ang2 = atan (double(p_2.y-p_1.y)/(((p_2.x+image_width-pad_rect)/2)-p_1.x) * 180 / PI) ;
 
     return ((ang1+ang2)/2);
 
@@ -460,31 +463,33 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
         }
 
         //read barcode
-        std::string barcode = " " ;
+        std::string barcode = " " ,fileName;
         cv::Mat gray_barcode;
 
         cv::Mat(img_process(cv::Rect(barcodeX*resize_factor,barcodeY*resize_factor,barcodeWidth*resize_factor,barcodeHeight*resize_factor))).copyTo(gray_barcode);
         cv::cvtColor(gray_barcode,gray_barcode,cv::COLOR_BGR2GRAY) ;
 
         QZXing decoder;
-        decoder.setDecoder(QZXing::DecoderFormat_QR_CODE | QZXing::DecoderFormat_CODE_128 );
+//        decoder.setDecoder(QZXing::DecoderFormat_QR_CODE | QZXing::DecoderFormat_CODE_128 );
+        decoder.setDecoder(QZXing::DecoderFormat_None );
 
         barcode = decoder.decodeImage(ASM::cvMatToQImage(gray_barcode)).toStdString();
 
         if (barcode.size() != 0) {
+            fileName = barcode;
             cv::putText(img_resize_out, barcode, cv::Point(barcodeX,barcodeY+barcodeHeight), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar( 255, 0, 0 ),2);
         }
         else {
-            barcode= currentDateTime() ;
+            fileName= currentDateTime() ;
         }
 
         //save orginal and processed file
         std::string file_name_org , file_name_proc ;
 
-        file_name_proc = out_path_processd + barcode + ".jpg";
+        file_name_proc = out_path_processd + fileName + ".jpg";
         cv::imwrite(file_name_proc,img_resize_out) ;
 
-        file_name_org = out_path_orginal + barcode + ".jpg";
+        file_name_org = out_path_orginal + fileName + ".jpg";
         cv::imwrite(file_name_org,img_resize) ;
 
         //insert result to table
@@ -557,7 +562,9 @@ AnswerSheet::OMRResult AnswerSheet::readChoices(cv::Mat& img_org ,cv::Mat& img ,
             row = 0;
         }
     }
-
+    if(max-min < 70) { //empty page
+        max =100 ;
+    }
     //detect selected choices
     int choicesSum = 0 ;
     int choicesCounter=0;
@@ -579,13 +586,13 @@ AnswerSheet::OMRResult AnswerSheet::readChoices(cv::Mat& img_org ,cv::Mat& img ,
         }
 
         int* max_choice = std::max_element(choice_value,choice_value+choiceNumber);
-        int max_idx = std::distance(choice_value, max_choice) ;
-        if (*max_choice>=darkness_threshold || (max -choice_value_pure[max_idx])<(max/2) || choice_value_pure[max_idx]>(max/2)) { //choiced
+        int max_idx = std::distance(choice_value, max_choice) ; //|| choice_value_pure[max_idx]>(max/2)
+        if (max!=100 && (*max_choice>=darkness_threshold || (max -choice_value_pure[max_idx])<(max/4) )) { //choiced
 
             choicesSum+= *max_choice ;
             choicesCounter += 1 ;
             for (int choice = 0; choice < choiceNumber; ++choice) { //check duplicated choice
-                if ( choice!= max_idx && max!= 100 &&  ((*max_choice-choice_value[choice])<=(darkness_threshold/(3)) || (max - choice_value_pure[choice])<20 || choice_value[choice]>80) ) {
+                if ( choice!= max_idx && max!= 100 &&  ((*max_choice-choice_value[choice])<=(darkness_threshold/(3)) || choice_value[choice]>80 || (max - choice_value_pure[choice])<20) ) {
 
                     cv::rectangle(img_process,choicesRect[ques_counter][choice] ,cv::Scalar(0,0,255),2);
                     if (!twochoice) {
@@ -629,7 +636,7 @@ AnswerSheet::OMRResult AnswerSheet::readChoices(cv::Mat& img_org ,cv::Mat& img ,
             ques_counter = 0 ,row = 0,  column=0 ;
             choicesCounter = 0 ;
             choicesSum = 0 ;
-            darkness_threshold = 30 ;
+            darkness_threshold = 25 ;
             firstCheck = false ;
             img_org.copyTo(img_process);
         }

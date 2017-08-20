@@ -5,29 +5,15 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/ml.hpp>
 #include <QSqlQuery>
-#include <sqlite3.h>
 #include <QSqlQueryModel>
 #include <QFileDialog>
 #include <QDir>
 #include <QObject>
-//#include <zxing/common/Counted.h>
-//#include <zxing/Binarizer.h>
-//#include <zxing/MultiFormatReader.h>
-//#include <zxing/Result.h>
-//#include <zxing/ReaderException.h>
-//#include <zxing/common/GlobalHistogramBinarizer.h>
-//#include <zxing/Exception.h>
-//#include <zxing/common/IllegalArgumentException.h>
-//#include <zxing/BinaryBitmap.h>
-//#include <zxing/DecodeHints.h>
-//#include <zxing/qrcode/QRCodeReader.h>
-//#include <zxing/MultiFormatReader.h>
-//#include <zxing/MatSource.h>
 #include <ctime>
 #include <mutex>
 #include <QString>
 
-enum eye_pose {LEFT, RIGHT };
+enum eye_pose {LEFT, RIGHT,BOTH };
 
 
 

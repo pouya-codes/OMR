@@ -21,6 +21,7 @@ CreateForm::CreateForm(QWidget *parent) :
 {
 
     ui->setupUi(this);
+    ui->comboBoxBarcode->addItem("تشخیص خودکار") ;
 //    this->setFixedSize(window()->maximumWidth()*2,window()->maximumHeight()*2);
 }
 
@@ -43,6 +44,11 @@ void CreateForm::on_pb_openImage_clicked()
             cv::resize(img, resized_img_cv,cv::Size(ui->label_image->width(),ui->label_image->height())) ;
             qt_img = ASM::cvMatToQImage( resized_img_cv );
             ui->label_image->setPixmap(QPixmap::fromImage(qt_img));
+            ui->pb_removeColors->setEnabled(true);
+            ui->frameBarcode->setEnabled(true);
+            ui->frameEyes->setEnabled(true);
+            ui->frameQuestions->setEnabled(true);
+            ui->pushButton_2->setEnabled(true);
         }
 
     }
@@ -99,4 +105,28 @@ void CreateForm::on_pushButton_2_clicked()
     omrprocess.setAnswerSheet(answerSheet);
 
 
+}
+
+void CreateForm::on_radioButton_clicked(bool checked)
+{
+    if(checked) {
+        ui->radioButton_2->setChecked(false);
+        ui->radioButton_3->setChecked(false);
+    }
+}
+
+void CreateForm::on_radioButton_2_clicked(bool checked)
+{
+    if(checked) {
+        ui->radioButton->setChecked(false);
+        ui->radioButton_3->setChecked(false);
+    }
+}
+
+void CreateForm::on_radioButton_3_clicked(bool checked)
+{
+    if(checked) {
+        ui->radioButton->setChecked(false);
+        ui->radioButton_2->setChecked(false);
+    }
 }

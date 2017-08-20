@@ -4,7 +4,6 @@
 #include "createform.h"
 #include <QtSql/qsqldatabase.h>
 #include <QSqlQuery>
-#include <sqlite3.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),

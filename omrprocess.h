@@ -9,12 +9,9 @@
 #include <QtSql/qsqldatabase.h>
 #include <QItemSelectionModel>
 #include <QSqlQuery>
-#include <sqlite3.h>
 #include <QSqlQueryModel>
 #include <zbar.h>
 #include <QFileDialog>
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
 #include <fstream>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>

@@ -219,17 +219,16 @@ void OMRProcess::getTableNames() {
 
 }
 
-std::string createRecurciveDirectory(std::string path) {
-    std::vector<std::string> strs;
-    boost::split(strs, path, boost::is_any_of("/"));
-    std::string outpath = "" ;
+std::string createRecurciveDirectory(QString path) {
+    QStringList strs = path.split('/') ;
+    QString outpath = "" ;
     for (uint idx = 0; idx < strs.size(); ++idx) {
         outpath+=strs[idx] +"/" ;
-        if(!boost::filesystem::exists(outpath)) {
-            boost::filesystem::create_directory(outpath) ;
+        if(!QDir(outpath).exists()) {
+            QDir().mkdir(outpath);
         }
     }
-    return outpath ;
+    return outpath.toStdString() ;
 
 
 }
@@ -269,9 +268,9 @@ void OMRProcess::on_pushButton_clicked()
         ui->pushButtonStop->setEnabled(true);
 
         ProcessImagePath(source.toStdString(),
-                         createRecurciveDirectory(ui->lineEditOrginalPath->text().toStdString()) ,
-                         createRecurciveDirectory(ui->lineEditProcessedPath->text().toStdString()),
-                         createRecurciveDirectory(ui->lineEditErrorPath->text().toStdString()));
+                         createRecurciveDirectory(ui->lineEditOrginalPath->text()) ,
+                         createRecurciveDirectory(ui->lineEditProcessedPath->text()),
+                         createRecurciveDirectory(ui->lineEditErrorPath->text()));
 
     }
 
