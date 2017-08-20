@@ -10,7 +10,6 @@
 #include <QItemSelectionModel>
 #include <QSqlQuery>
 #include <QSqlQueryModel>
-#include <zbar.h>
 #include <QFileDialog>
 #include <fstream>
 #include <QMessageBox>
