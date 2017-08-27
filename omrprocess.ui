@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>قرائتگر</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="1">
@@ -357,7 +357,7 @@
           <x>0</x>
           <y>0</y>
           <width>582</width>
-          <height>652</height>
+          <height>690</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_10">

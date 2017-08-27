@@ -140,7 +140,7 @@ void OMRProcess::setAnswerSheet(AnswerSheet* answerSheet_) {
 }
 
 
-cv::Mat OMRProcess::ProcessImage(cv::String imagePath,std::string pathOrginal,std::string pathProcessed,std::string pathError)  {
+cv::Mat OMRProcess::ProcessImage(cv::String imagePath,std::string pathOrginal,std::string pathProcessed,std::string pathError,int thread_no)  {
     const cv::Mat image = cv::imread(imagePath);
     if(image.empty())
     {
@@ -149,7 +149,7 @@ cv::Mat OMRProcess::ProcessImage(cv::String imagePath,std::string pathOrginal,st
     }
 
 
-    cv::Mat process_image = answerSheet->ProcessImage(image,ui->lineEditTableName->text(),pathOrginal,pathProcessed,pathError) ;
+    cv::Mat process_image = answerSheet->ProcessImage(image,ui->lineEditTableName->text(),pathOrginal,pathProcessed,pathError,thread_no) ;
     return process_image ;
 
 }
@@ -167,7 +167,7 @@ void OMRProcess::ProcessImagePath(std::string path,std::string pathOrginal,std::
                 break ;
             std::thread threads[num_threads];
             for (int t=0; t<num_threads; ++t)
-                threads[t] = std::thread(&OMRProcess::ProcessImage,this,fn[filecounter+t],pathOrginal,pathProcessed,pathError);
+                threads[t] = std::thread(&OMRProcess::ProcessImage,this,fn[filecounter+t],pathOrginal,pathProcessed,pathError,t);
             for (auto& th : threads) th.join();
             ui->labelStatus->setText("تعداد کل فایل ها: "+QString::number(count)+" , پردازش شده:"+QString::number(filecounter+num_threads)+" , باقی مانده:"+QString::number(count- filecounter-num_threads));
             queryData() ;
@@ -178,7 +178,7 @@ void OMRProcess::ProcessImagePath(std::string path,std::string pathOrginal,std::
         if (remainFiles!=0 && running) {
             std::thread threads[remainFiles];
             for (int i=0; i<remainFiles; ++i)
-                threads[i] = std::thread(&OMRProcess::ProcessImage,this,fn[filecounter+i],pathOrginal,pathProcessed,pathError);
+                threads[i] = std::thread(&OMRProcess::ProcessImage,this,fn[filecounter+i],pathOrginal,pathProcessed,pathError,i);
             for (auto& th : threads) th.join();
             //                ui->labelStatus->setText("تعداد کل تصاویر:"+ QString(count) + " باقی مانده "+ QString(std::abs(count-i) ));
             ui->labelStatus->setText("تعداد کل فایل ها: "+QString::number(count)+" , پردازش شده:"+QString::number(filecounter+remainFiles)+" , باقی مانده:"+QString::number(count- filecounter-remainFiles));
@@ -193,7 +193,7 @@ void OMRProcess::ProcessImagePath(std::string path,std::string pathOrginal,std::
         for (size_t filecounter=0; filecounter<count; filecounter++){
             if(!running)
                 break ;
-            cv::Mat resultImage =ProcessImage(fn[filecounter],pathOrginal,pathProcessed,pathError) ;
+            cv::Mat resultImage =ProcessImage(fn[filecounter],pathOrginal,pathProcessed,pathError,0) ;
             if ( !resultImage.empty()) {
                 cv::resize(resultImage, resultImage,cv::Size(ui->label->width(),ui->label->height())) ;
                 QImage qt_img = ASM::cvMatToQImage( resultImage );
@@ -285,7 +285,7 @@ void OMRProcess::on_pushButton_2_clicked()
                                                    "/home","Text Files (*.txt)");
 
     if(outfile!="") {
-        std::string outfilename = outfile.toStdString() +".txt";
+        std::string outfilename = outfile.toStdString() ; // +".txt";
         std::ofstream out ;
         out.open(outfilename);
 
@@ -334,10 +334,8 @@ void OMRProcess::setPicture (int id) {
 
 void OMRProcess::on_tableView_clicked(const QModelIndex &index)
 {
-
     int id = index.sibling(index.row(), 0).data().toInt();
     setPicture(id) ;
-
 }
 
 void OMRProcess::on_tableView_activated(const QModelIndex &index)
@@ -392,20 +390,20 @@ void OMRProcess::queryData() {
     }
 
     if (ui->checkBoxDuplicated->isChecked()) {
-        QString filter_txt = "code in (select code FROM "+ ui->lineEditTableName->text() +" GROUP BY code HAVING count(*) >1)" ;
+        QString filter_txt = "code in (select code FROM "+ ui->lineEditTableName->text() +" GROUP BY code HAVING count(*) >1) order by code" ;
         dataModel->setFilter(filter_txt);
     }
 
     if (ui->checkBoxTwoChoices->isChecked()) {
-        dataModel->setFilter("answers like '%*%'");
+        dataModel->setFilter("answers like '%*%' order by LENGTH(REPLACE(answers, '*', ''))");
     }
 
     if (ui->checkBoxApsent->isChecked()) {
-        dataModel->setFilter("LENGTH(REPLACE(answers, ' ', '')) > 0  AND  LENGTH(REPLACE(answers, ' ', '')) < 4");
+        dataModel->setFilter("LENGTH(REPLACE(answers, ' ', '')) > 0  AND  LENGTH(REPLACE(answers, ' ', '')) < 6");
     }
 
     if (ui->checkBoxLowColors->isChecked()) {
-        dataModel->setFilter("averageBlackness <= 75 and LENGTH(REPLACE(answers, ' ', '')) != 0 order by averageBlackness");
+        dataModel->setFilter("averageBlackness <= 60 and LENGTH(REPLACE(answers, ' ', '')) != 0 order by averageBlackness");
     }
 
     dataModel->select();
@@ -413,10 +411,13 @@ void OMRProcess::queryData() {
     dataModel->removeColumn(1);
     dataModel->removeColumn(4);
     dataModel->removeColumn(4);
+    dataModel->removeColumn(2);
+
     dataModel->setHeaderData(0, Qt::Orientation::Horizontal, tr("ID"));
     dataModel->setHeaderData(1,  Qt::Orientation::Horizontal, tr("Code"));
-    dataModel->setHeaderData(2,  Qt::Orientation::Horizontal, tr("Answers"));
+//    dataModel->setHeaderData(2,  Qt::Orientation::Horizontal, tr("Answers"));
     dataModel->setHeaderData(3,  Qt::Orientation::Horizontal, tr("Date"));
+
 
     ui->tableView->setModel(dataModel);
     QItemSelectionModel *sm = ui->tableView->selectionModel();

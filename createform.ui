@@ -129,15 +129,24 @@
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QLineEdit" name="le_EyePad">
+         <widget class="QSpinBox" name="le_EyePad">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text">
+          <property stdset="0">
            <string>90</string>
+          </property>
+          <property name="maximum">
+           <number>110</number>
+          </property>
+          <property name="singleStep">
+           <number>5</number>
+          </property>
+          <property name="value">
+           <number>90</number>
           </property>
          </widget>
         </item>
@@ -152,15 +161,24 @@
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLineEdit" name="lineEdit">
+         <widget class="QSpinBox" name="le_darkness">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text">
+          <property stdset="0">
            <string>130</string>
+          </property>
+          <property name="maximum">
+           <number>255</number>
+          </property>
+          <property name="singleStep">
+           <number>10</number>
+          </property>
+          <property name="value">
+           <number>130</number>
           </property>
          </widget>
         </item>
@@ -214,15 +232,24 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QLineEdit" name="le_barcode_y">
+            <widget class="QSpinBox" name="le_barcode_y">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="text">
+             <property stdset="0">
               <string>100</string>
+             </property>
+             <property name="maximum">
+              <number>1000</number>
+             </property>
+             <property name="singleStep">
+              <number>5</number>
+             </property>
+             <property name="value">
+              <number>100</number>
              </property>
             </widget>
            </item>
@@ -234,41 +261,68 @@
             </widget>
            </item>
            <item row="1" column="3">
-            <widget class="QLineEdit" name="le_barcode_width">
+            <widget class="QSpinBox" name="le_barcode_width">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="text">
+             <property stdset="0">
               <string>320</string>
+             </property>
+             <property name="maximum">
+              <number>1000</number>
+             </property>
+             <property name="singleStep">
+              <number>5</number>
+             </property>
+             <property name="value">
+              <number>320</number>
              </property>
             </widget>
            </item>
            <item row="0" column="3">
-            <widget class="QLineEdit" name="le_barcode_height">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>250</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="le_barcode_x">
+            <widget class="QSpinBox" name="le_barcode_height">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="text">
+             <property stdset="0">
+              <string>250</string>
+             </property>
+             <property name="maximum">
+              <number>1000</number>
+             </property>
+             <property name="singleStep">
+              <number>5</number>
+             </property>
+             <property name="value">
+              <number>250</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="le_barcode_x">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property stdset="0">
               <string>120</string>
+             </property>
+             <property name="maximum">
+              <number>1000</number>
+             </property>
+             <property name="singleStep">
+              <number>5</number>
+             </property>
+             <property name="value">
+              <number>120</number>
              </property>
             </widget>
            </item>
@@ -349,15 +403,18 @@
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="2" column="0">
-         <widget class="QLineEdit" name="le_distanceChoiceChoice">
+         <widget class="QSpinBox" name="le_distanceChoiceChoice">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text">
+          <property stdset="0">
            <string>41</string>
+          </property>
+          <property name="value">
+           <number>41</number>
           </property>
          </widget>
         </item>
@@ -410,15 +467,21 @@
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QLineEdit" name="le_distanceColumns">
+         <widget class="QSpinBox" name="le_distanceColumns">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text">
+          <property stdset="0">
            <string>277</string>
+          </property>
+          <property name="maximum">
+           <number>1000</number>
+          </property>
+          <property name="value">
+           <number>277</number>
           </property>
          </widget>
         </item>
@@ -489,15 +552,18 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="le_refrenceEye">
+           <widget class="QSpinBox" name="le_refrenceEye">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="text">
+            <property stdset="0">
              <string>10</string>
+            </property>
+            <property name="value">
+             <number>10</number>
             </property>
            </widget>
           </item>
@@ -515,15 +581,24 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLineEdit" name="le_distanceRefwidth">
+           <widget class="QSpinBox" name="le_distanceRefwidth">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="text">
+            <property stdset="0">
              <string>117</string>
+            </property>
+            <property name="minimum">
+             <number>-1000</number>
+            </property>
+            <property name="maximum">
+             <number>1000</number>
+            </property>
+            <property name="value">
+             <number>117</number>
             </property>
            </widget>
           </item>
@@ -541,15 +616,24 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QLineEdit" name="le_distanceRefHeight">
+           <widget class="QSpinBox" name="le_distanceRefHeight">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="text">
+            <property stdset="0">
              <string>-1</string>
+            </property>
+            <property name="minimum">
+             <number>-1000</number>
+            </property>
+            <property name="maximum">
+             <number>1000</number>
+            </property>
+            <property name="value">
+             <number>-1</number>
             </property>
            </widget>
           </item>
@@ -578,32 +662,6 @@
           <property name="verticalSpacing">
            <number>0</number>
           </property>
-          <item row="1" column="0">
-           <widget class="QLabel" name="Label_2">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>عرض  </string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="le_choiceHeight">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>17</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="Label">
             <property name="sizePolicy">
@@ -618,43 +676,87 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="le_choiceWidth">
+           <widget class="QSpinBox" name="le_choiceWidth">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="text">
+            <property stdset="0">
              <string>25</string>
+            </property>
+            <property name="value">
+             <number>25</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="Label_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>عرض  </string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="le_choiceHeight">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property stdset="0">
+             <string>17</string>
+            </property>
+            <property name="value">
+             <number>17</number>
             </property>
            </widget>
           </item>
          </layout>
         </item>
         <item row="0" column="2">
-         <widget class="QLineEdit" name="le_numberOfquestions">
+         <widget class="QSpinBox" name="le_numberOfquestions">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text">
+          <property stdset="0">
            <string>90</string>
+          </property>
+          <property name="maximum">
+           <number>300</number>
+          </property>
+          <property name="value">
+           <number>90</number>
           </property>
          </widget>
         </item>
         <item row="0" column="0">
-         <widget class="QLineEdit" name="le_numberOfChoices">
+         <widget class="QSpinBox" name="le_numberOfChoices">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text">
+          <property stdset="0">
            <string>4</string>
+          </property>
+          <property name="maximum">
+           <number>6</number>
+          </property>
+          <property name="value">
+           <number>4</number>
           </property>
          </widget>
         </item>
@@ -679,7 +781,7 @@
        <property name="sizeConstraint">
         <enum>QLayout::SetMaximumSize</enum>
        </property>
-       <item row="9" column="0">
+       <item row="8" column="0">
         <widget class="QPushButton" name="pushButton_2">
          <property name="enabled">
           <bool>false</bool>

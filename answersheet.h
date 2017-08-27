@@ -9,8 +9,6 @@
 #include <QFileDialog>
 #include <QDir>
 #include <QObject>
-#include <ctime>
-#include <mutex>
 #include <QString>
 
 enum eye_pose {LEFT, RIGHT,BOTH };
@@ -28,12 +26,12 @@ class AnswerSheet
 public:
     AnswerSheet(cv::Mat img);
     cv::Mat RemoveColors () ;
-    void DetectEyes (int pad_rectangle) ;
+    void DetectEyes (int pad_rectangle, int darkness_threshold) ;
     cv::Mat getImage();
     cv::Mat DrawChoices (int referenceEye,int distanceWidth,int distanceHeight,int choiceWidth,int choiceHeight,
                          int choiceNumber, int distanceChoiceChoice, int numberOfQuestions, int columnDistance,
                          int barcodeX_,int barcodeY_,int barcodeWidth_,int barcodeHeight_) ;
-    cv::Mat ProcessImage (cv::Mat img_process,QString table_name,std::string out_path_orginal,std::string out_path_processd,std::string out_path_error);
+    cv::Mat ProcessImage (cv::Mat img_process,QString table_name,std::string out_path_orginal,std::string out_path_processd,std::string out_path_error,int thread_no);
     bool createTable(QString tableName) ;
     bool deleteTable(QString tableName) ;
     void openDB(QString dbName);
