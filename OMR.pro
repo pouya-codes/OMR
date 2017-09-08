@@ -14,8 +14,18 @@ TEMPLATE = app
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
-#-unix: CONFIG += link_pkgconfig
-#-unix: PKGCONFIG += opencv
+unix {
+unix: CONFIG += link_pkgconfig
+unix: PKGCONFIG += opencv
+}
+win32 {
+INCLUDEPATH += include
+
+LIBS += lib\libopencv_core2413.dll
+LIBS += lib\libopencv_highgui2413.dll
+LIBS += lib\libopencv_imgproc2413.dll
+}
+
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -34,13 +44,8 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui \
     createform.ui \
     omrprocess.ui
-INCLUDEPATH += C:\opencv\opencv\build\include
 
-LIBS += C:\opencv\opencv_bin\bin\libopencv_core2413.dll
-LIBS += C:\opencv\opencv_bin\bin\libopencv_highgui2413.dll
-LIBS += C:\opencv\opencv_bin\bin\libopencv_imgproc2413.dll
-LIBS += C:\opencv\opencv_bin\bin\libopencv_features2d2413.dll
-LIBS += C:\opencv\opencv_bin\bin\libopencv_calib3d2413.dll
+
 
 
 include(QZXing/QZXing.pri)
