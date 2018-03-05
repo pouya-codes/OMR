@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>تعریف پاسخنامه جدید</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="1">
@@ -40,6 +40,16 @@
         <enum>QFrame::Raised</enum>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QPushButton" name="pushButton_clearOmitedColors">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>پاک کردن زنگ های حدف شده</string>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QPushButton" name="pb_removeColors">
           <property name="enabled">
@@ -74,6 +84,9 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
        <property name="frameShape">
         <enum>QFrame::StyledPanel</enum>
        </property>
@@ -81,10 +94,25 @@
         <enum>QFrame::Raised</enum>
        </property>
        <layout class="QGridLayout" name="gridLayout_6">
-        <item row="0" column="3">
-         <widget class="QPushButton" name="pb_findEyes">
-          <property name="text">
-           <string>یافتن چشم ها</string>
+        <item row="1" column="2">
+         <widget class="QSpinBox" name="le_EyePad">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximum">
+           <number>150</number>
+          </property>
+          <property name="singleStep">
+           <number>5</number>
+          </property>
+          <property name="value">
+           <number>90</number>
+          </property>
+          <property name="" stdset="0">
+           <string>90</string>
           </property>
          </widget>
         </item>
@@ -121,32 +149,10 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>حاشیه</string>
+           <string>حاشیه پاسخ برگ</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QSpinBox" name="le_EyePad">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property stdset="0">
-           <string>90</string>
-          </property>
-          <property name="maximum">
-           <number>110</number>
-          </property>
-          <property name="singleStep">
-           <number>5</number>
-          </property>
-          <property name="value">
-           <number>90</number>
           </property>
          </widget>
         </item>
@@ -168,9 +174,6 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property stdset="0">
-           <string>130</string>
-          </property>
           <property name="maximum">
            <number>255</number>
           </property>
@@ -179,6 +182,26 @@
           </property>
           <property name="value">
            <number>130</number>
+          </property>
+          <property name="" stdset="0">
+           <string>130</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QPushButton" name="pb_findEyes">
+          <property name="text">
+           <string>یافتن چشم ها</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QLabel" name="label_16">
+          <property name="text">
+           <string>محل قرارگیری چشم ها</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -205,11 +228,17 @@
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="1" column="0" colspan="2">
          <widget class="QFrame" name="frame_3">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="mouseTracking">
+           <bool>false</bool>
           </property>
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
@@ -239,9 +268,6 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property stdset="0">
-              <string>100</string>
-             </property>
              <property name="maximum">
               <number>1000</number>
              </property>
@@ -249,7 +275,10 @@
               <number>5</number>
              </property>
              <property name="value">
-              <number>100</number>
+              <number>80</number>
+             </property>
+             <property name="" stdset="0">
+              <string>100</string>
              </property>
             </widget>
            </item>
@@ -268,9 +297,6 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property stdset="0">
-              <string>320</string>
-             </property>
              <property name="maximum">
               <number>1000</number>
              </property>
@@ -280,18 +306,21 @@
              <property name="value">
               <number>320</number>
              </property>
+             <property name="" stdset="0">
+              <string>320</string>
+             </property>
             </widget>
            </item>
            <item row="0" column="3">
             <widget class="QSpinBox" name="le_barcode_height">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
-             </property>
-             <property stdset="0">
-              <string>250</string>
              </property>
              <property name="maximum">
               <number>1000</number>
@@ -301,6 +330,9 @@
              </property>
              <property name="value">
               <number>250</number>
+             </property>
+             <property name="" stdset="0">
+              <string>250</string>
              </property>
             </widget>
            </item>
@@ -312,9 +344,6 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property stdset="0">
-              <string>120</string>
-             </property>
              <property name="maximum">
               <number>1000</number>
              </property>
@@ -323,6 +352,9 @@
              </property>
              <property name="value">
               <number>120</number>
+             </property>
+             <property name="" stdset="0">
+              <string>120</string>
              </property>
             </widget>
            </item>
@@ -402,138 +434,14 @@
         <enum>QFrame::Raised</enum>
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="2" column="0">
-         <widget class="QSpinBox" name="le_distanceChoiceChoice">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property stdset="0">
-           <string>41</string>
-          </property>
+        <item row="1" column="0">
+         <widget class="QSpinBox" name="spinBox_rowDistance">
           <property name="value">
-           <number>41</number>
+           <number>38</number>
           </property>
          </widget>
         </item>
-        <item row="0" column="3">
-         <widget class="QLabel" name="label_4">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>تعداد سوالات</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="label_5">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>تعداد گزینه ها</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QLabel" name="label_10">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>فاصه ستون ها</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QSpinBox" name="le_distanceColumns">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property stdset="0">
-           <string>277</string>
-          </property>
-          <property name="maximum">
-           <number>1000</number>
-          </property>
-          <property name="value">
-           <number>277</number>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLabel" name="label_8">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>فاصله گزینه ها از یکدیگر</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="3">
-         <widget class="QLabel" name="label_7">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>فاصله گزینه اول از چشم</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="3">
-         <widget class="QLabel" name="label_9">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>ابعاد گزینه</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="2">
+        <item row="4" column="2">
          <layout class="QFormLayout" name="formLayout_6">
           <item row="0" column="0">
            <widget class="QLabel" name="label_2">
@@ -559,11 +467,11 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property stdset="0">
-             <string>10</string>
-            </property>
             <property name="value">
              <number>10</number>
+            </property>
+            <property name="" stdset="0">
+             <string>10</string>
             </property>
            </widget>
           </item>
@@ -588,9 +496,6 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property stdset="0">
-             <string>117</string>
-            </property>
             <property name="minimum">
              <number>-1000</number>
             </property>
@@ -598,7 +503,10 @@
              <number>1000</number>
             </property>
             <property name="value">
-             <number>117</number>
+             <number>79</number>
+            </property>
+            <property name="" stdset="0">
+             <string>117</string>
             </property>
            </widget>
           </item>
@@ -623,9 +531,6 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property stdset="0">
-             <string>-1</string>
-            </property>
             <property name="minimum">
              <number>-1000</number>
             </property>
@@ -633,13 +538,16 @@
              <number>1000</number>
             </property>
             <property name="value">
-             <number>-1</number>
+             <number>-2</number>
+            </property>
+            <property name="" stdset="0">
+             <string>-1</string>
             </property>
            </widget>
           </item>
          </layout>
         </item>
-        <item row="2" column="2">
+        <item row="3" column="2">
          <layout class="QFormLayout" name="formLayout_2">
           <property name="sizeConstraint">
            <enum>QLayout::SetMinimumSize</enum>
@@ -683,11 +591,11 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property stdset="0">
-             <string>25</string>
-            </property>
             <property name="value">
              <number>25</number>
+            </property>
+            <property name="" stdset="0">
+             <string>25</string>
             </property>
            </widget>
           </item>
@@ -712,15 +620,56 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property stdset="0">
-             <string>17</string>
-            </property>
             <property name="value">
              <number>17</number>
+            </property>
+            <property name="" stdset="0">
+             <string>17</string>
             </property>
            </widget>
           </item>
          </layout>
+        </item>
+        <item row="1" column="2">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QRadioButton" name="radioButton_column">
+            <property name="text">
+             <string>ستونی</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButton_row">
+            <property name="text">
+             <string>ردیفی</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="3">
+         <widget class="QLabel" name="label_17">
+          <property name="text">
+           <string>ترتیب سوالات</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="label_18">
+          <property name="text">
+           <string>فاصله گزینه ها ستونی</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
         </item>
         <item row="0" column="2">
          <widget class="QSpinBox" name="le_numberOfquestions">
@@ -730,14 +679,78 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property stdset="0">
-           <string>90</string>
-          </property>
           <property name="maximum">
            <number>300</number>
           </property>
           <property name="value">
-           <number>90</number>
+           <number>125</number>
+          </property>
+          <property name="" stdset="0">
+           <string>90</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLabel" name="label_10">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>فاصه ستون ها</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLabel" name="label_8">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>فاصله گزینه ها از یکدیگر</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QSpinBox" name="le_distanceChoiceChoice">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="value">
+           <number>0</number>
+          </property>
+          <property name="" stdset="0">
+           <string>41</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QLabel" name="label_4">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>تعداد سوالات</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -749,18 +762,85 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property stdset="0">
-           <string>4</string>
-          </property>
           <property name="maximum">
-           <number>6</number>
+           <number>10</number>
           </property>
           <property name="value">
-           <number>4</number>
+           <number>10</number>
+          </property>
+          <property name="" stdset="0">
+           <string>4</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="0" colspan="4">
+        <item row="4" column="3">
+         <widget class="QLabel" name="label_7">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>فاصله گزینه اول از چشم</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="label_5">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>تعداد گزینه ها</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QSpinBox" name="le_distanceColumns">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximum">
+           <number>1000</number>
+          </property>
+          <property name="value">
+           <number>21</number>
+          </property>
+          <property name="" stdset="0">
+           <string>277</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="3">
+         <widget class="QLabel" name="label_9">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>ابعاد گزینه</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0" colspan="4">
          <widget class="QPushButton" name="pushButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -773,6 +853,107 @@
           </property>
          </widget>
         </item>
+        <item row="5" column="2">
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="Label_5">
+            <property name="text">
+             <string>چشم مبدا</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="SpinBox_code_refrenceEye">
+            <property name="value">
+             <number>9</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="Label_8">
+            <property name="text">
+             <string>تعداد گزینه</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="SpinBox_code_numChoice">
+            <property name="value">
+             <number>2</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="5" column="3">
+         <widget class="QCheckBox" name="checkBox_code">
+          <property name="text">
+           <string>کد دفترچه</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <layout class="QFormLayout" name="formLayout_4">
+          <item row="0" column="0">
+           <widget class="QLabel" name="Label_6">
+            <property name="text">
+             <string>طول</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="SpinBox_code_width">
+            <property name="maximum">
+             <number>200</number>
+            </property>
+            <property name="value">
+             <number>123</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="Label_7">
+            <property name="text">
+             <string>عرض</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="SpinBox_code_height">
+            <property name="minimum">
+             <number>-100</number>
+            </property>
+            <property name="maximum">
+             <number>200</number>
+            </property>
+            <property name="value">
+             <number>0</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="5" column="0">
+         <layout class="QFormLayout" name="formLayout_5">
+          <item row="0" column="0">
+           <widget class="QLabel" name="Label_9">
+            <property name="text">
+             <string>فاصله</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="SpinBox_code_distance">
+            <property name="maximum">
+             <number>200</number>
+            </property>
+            <property name="value">
+             <number>36</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
        </layout>
       </widget>
      </item>
@@ -781,6 +962,24 @@
        <property name="sizeConstraint">
         <enum>QLayout::SetMaximumSize</enum>
        </property>
+       <item row="9" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <widget class="QPushButton" name="pushButton_load">
+           <property name="text">
+            <string>بازکردن پاسخ نامه</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_save">
+           <property name="text">
+            <string>ذخیره پاسخ نامه</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
        <item row="8" column="0">
         <widget class="QPushButton" name="pushButton_2">
          <property name="enabled">
@@ -817,6 +1016,9 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">border: 2px solid black</string>
         </property>
         <property name="text">
          <string/>

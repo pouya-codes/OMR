@@ -21,9 +21,9 @@ unix: PKGCONFIG += opencv
 win32 {
 INCLUDEPATH += include
 
-LIBS += lib\libopencv_core2413.dll
-LIBS += lib\libopencv_highgui2413.dll
-LIBS += lib\libopencv_imgproc2413.dll
+LIBS += D:\Develop\QT\OMR\lib\libopencv_core2413.dll
+LIBS += D:\Develop\QT\OMR\lib\libopencv_highgui2413.dll
+LIBS += D:\Develop\QT\OMR\lib\libopencv_imgproc2413.dll
 }
 
 

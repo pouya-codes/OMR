@@ -1,4 +1,5 @@
 #include "omrprocess.h"
+//bool riyazi = true ;
 
 OMRProcess::OMRProcess(QWidget *parent) :
     QDialog(parent),
@@ -9,6 +10,9 @@ OMRProcess::OMRProcess(QWidget *parent) :
     running = false ;
     getTableNames();
     connect(ui->label, SIGNAL( clicked(QMouseEvent*)), SLOT(lableClicked(QMouseEvent*)));
+    if ( mySetting.value(DEFAULT_RESULT_PATH_KEY).toString()=="")
+        mySetting.setValue(DEFAULT_RESULT_PATH_KEY,QDir::currentPath()) ;
+    ui->LineEditMain->setText( mySetting.value(DEFAULT_RESULT_PATH_KEY).toString());
 
 
 
@@ -77,16 +81,25 @@ void OMRProcess::lableClicked(QMouseEvent* event) {
                         selectedRowAnswers[row]=' ';
                     }
                     else if (event->button() == Qt::LeftButton) {
-                        if (selectedRowAnswers[row]!=' ' && selectedRowAnswers[row]!=QString::number(column+1)[0] )
-                            selectedRowAnswers[row]='*';
-                        else
-                            selectedRowAnswers[row]=QString::number(column+1)[0];
+                        if (columnQustaion) {
+                            if (selectedRowAnswers[row]!=' ' && selectedRowAnswers[row]!=QString::number(column)[0] )
+                                selectedRowAnswers[row]='*';
+                            else
+                                selectedRowAnswers[row]=QString::number(column)[0];
+                        }
+                        else {
+                            if (selectedRowAnswers[row]!=' ' && selectedRowAnswers[row]!=QString::number(column+1)[0] )
+                                selectedRowAnswers[row]='*';
+                            else
+                                selectedRowAnswers[row]=QString::number(column+1)[0];
+                        }
+
                     }
                 }
             }
         }
         // draw student choices on orginal image
-        cv::Mat imgShow ; selectedRowImage.copyTo(imgShow);
+        cv::Mat imgShow ,imgSave; selectedRowImage.copyTo(imgShow);
         for (uint row = 0 ; row < selectedRowAreas.size(); row ++) {
             bool twoChoiced = false ;
             bool empty = false ;
@@ -99,12 +112,30 @@ void OMRProcess::lableClicked(QMouseEvent* event) {
                     cv::rectangle(imgShow,selectedRowAreas[row][column],cv::Scalar(0,0,255),2) ;
                 else if (empty)
                     cv::rectangle(imgShow,selectedRowAreas[row][column],cv::Scalar(255,0,0),2) ;
-                else
-                    if(selectedRowAnswers[row]==QString::number(column+1)[0])
-                        cv::rectangle(imgShow,selectedRowAreas[row][column], cv::Scalar(0,255,0),2) ;
+                else {
+                    if (columnQustaion) {
+                        if(selectedRowAnswers[row]==QString::number(column)[0])
+                            cv::rectangle(imgShow,selectedRowAreas[row][column], cv::Scalar(0,255,0),2) ;
+                    }
+                    else {
+                        if(selectedRowAnswers[row]==QString::number(column+1)[0])
+                            cv::rectangle(imgShow,selectedRowAreas[row][column], cv::Scalar(0,255,0),2) ;
+                    }
+                }
+
 
             }
+
         }
+        //write choice number in choice`s rect
+        imgShow.copyTo(imgSave);
+        for (uint row = 0 ; row < selectedRowAreas.size(); row ++) {
+            for (uint column = 0 ; column < selectedRowAreas[row].size(); column++) {
+                cv::putText(imgShow,std::to_string(columnQustaion ? column : column+1 ),cv::Point(selectedRowAreas[row][column].x+(selectedRowAreas[row][column].width/2),selectedRowAreas[row][column].y+(selectedRowAreas[row][column].height)), CV_FONT_HERSHEY_SIMPLEX, 0.5,
+                            cv::Scalar(255,0,255), 1, 1) ;
+            }
+        }
+
 
 
         QImage qt_img = ASM::cvMatToQImage( imgShow );
@@ -117,7 +148,7 @@ void OMRProcess::lableClicked(QMouseEvent* event) {
             reply = QMessageBox::question(this, "ذخیره تغییرات",message,
                                           QMessageBox::Yes|QMessageBox::No);
             if (reply==QMessageBox::Yes) {
-                cv::imwrite(selectedRowProcessedPath.toStdString().c_str(),imgShow) ;
+                cv::imwrite(selectedRowProcessedPath.toStdString().c_str(),imgSave) ;
                 QSqlQuery query;
                 QString queryString;
                 queryString = "UPDATE " + ui->lineEditTableName->text() + " SET answers ='" +selectedRowAnswers +"' WHERE id = " + QString::number(selectedRowId) ; // update barcode
@@ -259,11 +290,12 @@ void OMRProcess::on_pushButton_clicked()
         }
     }
     QString source = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                       "/home",
+                                                       mySetting.value(DEFAULT_OPEN_PATH_KEY).toString()=="" ? QDir::currentPath() : mySetting.value(DEFAULT_OPEN_PATH_KEY).toString() ,
                                                        QFileDialog::ShowDirsOnly
                                                        | QFileDialog::DontResolveSymlinks);
 
     if(source!="") {
+        mySetting.setValue(DEFAULT_OPEN_PATH_KEY,source);
         running=true ;
         ui->pushButtonStop->setEnabled(true);
 
@@ -399,11 +431,11 @@ void OMRProcess::queryData() {
     }
 
     if (ui->checkBoxApsent->isChecked()) {
-        dataModel->setFilter("LENGTH(REPLACE(answers, ' ', '')) > 0  AND  LENGTH(REPLACE(answers, ' ', '')) < 6");
+        dataModel->setFilter("LENGTH(REPLACE(answers, ' ', '')) > 1  AND  LENGTH(REPLACE(answers, ' ', '')) < 6");
     }
 
     if (ui->checkBoxLowColors->isChecked()) {
-        dataModel->setFilter("averageBlackness <= 60 and LENGTH(REPLACE(answers, ' ', '')) != 0 order by averageBlackness");
+        dataModel->setFilter("averageBlackness <= 60 and LENGTH(REPLACE(answers, ' ', '')) > 1 order by averageBlackness");
     }
 
     dataModel->select();
@@ -415,7 +447,7 @@ void OMRProcess::queryData() {
 
     dataModel->setHeaderData(0, Qt::Orientation::Horizontal, tr("ID"));
     dataModel->setHeaderData(1,  Qt::Orientation::Horizontal, tr("Code"));
-//    dataModel->setHeaderData(2,  Qt::Orientation::Horizontal, tr("Answers"));
+    //    dataModel->setHeaderData(2,  Qt::Orientation::Horizontal, tr("Answers"));
     dataModel->setHeaderData(3,  Qt::Orientation::Horizontal, tr("Date"));
 
 
@@ -553,9 +585,10 @@ void OMRProcess::on_lineEditTableName_textChanged(const QString &arg1)
 
 void OMRProcess::on_LineEditMain_textChanged(const QString &arg1)
 {
-    ui->lineEditErrorPath->setText(arg1 +"/Error");
-    ui->lineEditOrginalPath->setText(arg1 +"/Orginal");
-    ui->lineEditProcessedPath->setText(arg1 +"/Processed");
+    mySetting.setValue(DEFAULT_RESULT_PATH_KEY,arg1) ;
+    ui->lineEditErrorPath->setText(arg1 +"/Error/"+ui->lineEditTableName->text());
+    ui->lineEditOrginalPath->setText(arg1 +"/Orginal/"+ui->lineEditTableName->text());
+    ui->lineEditProcessedPath->setText(arg1 +"/Processed/"+ui->lineEditTableName->text());
 
 }
 
@@ -572,7 +605,149 @@ void OMRProcess::on_tableViewSelectionModel_currentRowChanged(QModelIndex index1
 
 void OMRProcess::on_pushButton_4_clicked()
 {
-    QString queryStringPath = "DELETE * FROM "+ ui->lineEditTableName->text();
-    QSqlQuery queryPath;
-    queryPath.exec(queryStringPath) ;
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "حذف اطلاعات","آیا تمام رکوردهای موجود حدف شود؟",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply==QMessageBox::Yes) {
+        if (answerSheet->clearTable(ui->lineEditTableName->text()))
+        {
+            if (ui->checkBoxOmitOrginalImage->isChecked() || ui->checkBoxOmitProcessedImage->isChecked()){
+                QString queryStringPath = "SELECT orginalFilePath,processedFilePath FROM "+ ui->lineEditTableName->text() ;
+                QSqlQuery queryPath;
+                queryPath.exec(queryStringPath) ;
+                while (queryPath.next()) {
+                    QString orgpath = queryPath.value(0).toString();
+                    QString procpath = queryPath.value(1).toString();
+                    if(ui->checkBoxOmitOrginalImage->isChecked()) std::remove(orgpath.toStdString().c_str()) ;
+                    if(ui->checkBoxOmitProcessedImage->isChecked()) std::remove(procpath.toStdString().c_str()) ;
+                };
+
+            }
+
+            QMessageBox::information(this , "عملیات موفق","رکوردها با موفقیت حذف شد.") ;
+            queryData();
+        }
+
+    }
+}
+
+void OMRProcess::on_pushButton_MainPathOpen_clicked()
+{
+    QString source = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                       mySetting.value(DEFAULT_RESULT_PATH_KEY).toString(),
+                                                       QFileDialog::ShowDirsOnly
+                                                       | QFileDialog::DontResolveSymlinks);
+    if(source!="") {
+        ui->LineEditMain->setText(source);
+
+    }
+
+}
+
+void OMRProcess::on_pushButtonSingleFile_clicked()
+{
+
+    QSqlQuery query;
+    query.prepare("SELECT name FROM sqlite_master WHERE type = 'table' and name = ?");
+    query.bindValue(0, ui->lineEditTableName->text());
+    query.exec() ;
+    if (!query.first()) {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "ایجاد جدول جدید","جدول موجود نیست آیا ایجاد شود؟",
+                                      QMessageBox::Yes|QMessageBox::No);
+        if (reply==QMessageBox::Yes) {
+            QString table_name = ui->lineEditTableName->text();
+            if (answerSheet->createTable(ui->lineEditTableName->text())) {
+                QMessageBox::information(this , "عملیات موفق","جدول با موفقیت ایجاد شد.") ;
+            }
+            getTableNames();
+            ui->comboBoxDbNames->setCurrentIndex(ui->comboBoxDbNames->findText(table_name)) ;
+
+        }
+        else {
+            running= false ;
+            return ;
+        }
+    }
+
+    QString source = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                  mySetting.value(DEFAULT_OPEN_PATH_KEY).toString()=="" ? QDir::currentPath() : mySetting.value(DEFAULT_OPEN_PATH_KEY).toString(),
+                                                  "Images (*.jpg)");
+    if(source!="") {
+
+        mySetting.setValue(DEFAULT_OPEN_PATH_KEY,source);
+        cv::Mat resultImage =ProcessImage(source.toStdString(),
+                                          createRecurciveDirectory(ui->lineEditOrginalPath->text()),
+                                          createRecurciveDirectory(ui->lineEditProcessedPath->text()),
+                                          createRecurciveDirectory(ui->lineEditErrorPath->text()),0) ;
+        if ( !resultImage.empty()) {
+            cv::resize(resultImage, resultImage,cv::Size(ui->label->width(),ui->label->height())) ;
+            QImage qt_img = ASM::cvMatToQImage( resultImage );
+            ui->label->setPixmap(QPixmap::fromImage(qt_img));
+            ui->labelStatus->setText("تعداد کل فایل ها: "+QString::number(1)+" , پردازش شده:"+QString::number(1)+" , باقی مانده:"+QString::number(1));
+            queryData() ;
+            ui->tableView->scrollToBottom();
+            QCoreApplication::processEvents();
+        }
+    }
+
+
+
+}
+
+void OMRProcess::on_pushButton_ErrorPathOpen_clicked()
+{
+    QDesktopServices::openUrl( QUrl::fromLocalFile( ui->lineEditErrorPath->text())) ;
+}
+
+void OMRProcess::on_pushButton_MainPathBrowse_clicked()
+{
+    QDesktopServices::openUrl( QUrl::fromLocalFile( ui->LineEditMain->text())) ;
+}
+
+void OMRProcess::on_pushButton_OrginalPathOpen_clicked()
+{
+    QDesktopServices::openUrl( QUrl::fromLocalFile( ui->lineEditOrginalPath->text())) ;
+}
+
+void OMRProcess::on_pushButton_ProcessedPathOpen_clicked()
+{
+    QDesktopServices::openUrl( QUrl::fromLocalFile( ui->lineEditProcessedPath->text())) ;
+}
+
+void OMRProcess::on_pushButton_OrginalPathBrowse_clicked()
+{
+    QString source = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                       mySetting.value(DEFAULT_ORGINAL_PATH_KEY).toString(),
+                                                       QFileDialog::ShowDirsOnly
+                                                       | QFileDialog::DontResolveSymlinks);
+    if(source!="") {
+        ui->lineEditOrginalPath->setText(source);
+
+    }
+}
+
+void OMRProcess::on_pushButton_ProcessedPathBrowse_clicked()
+{
+    QString source = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                       mySetting.value(DEFAULT_PROCESSED_PATH_KEY).toString(),
+                                                       QFileDialog::ShowDirsOnly
+                                                       | QFileDialog::DontResolveSymlinks);
+    if(source!="") {
+        ui->lineEditProcessedPath->setText(source);
+
+    }
+}
+
+void OMRProcess::on_pushButton_ErrorPathBrowse_clicked()
+{
+    QString source = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                       mySetting.value(DEFAULT_ERROR_PATH_KEY).toString(),
+                                                       QFileDialog::ShowDirsOnly
+                                                       | QFileDialog::DontResolveSymlinks);
+    if(source!="") {
+        ui->lineEditErrorPath->setText(source);
+
+    }
 }

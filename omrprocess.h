@@ -17,6 +17,10 @@
 #include <thread>
 #include <future>
 #include <QMouseEvent>
+#include <QSettings>
+#include <QString>
+#include <QFileInfo>
+#include <QDesktopServices>
 
 
 
@@ -32,6 +36,7 @@ public:
     explicit OMRProcess(QWidget *parent = 0);
     ~OMRProcess();
     void setAnswerSheet(AnswerSheet* answerSheet_);
+    bool columnQustaion ;
 
 private slots:
     void on_pushButton_clicked();
@@ -44,6 +49,7 @@ private slots:
     void queryData();
     void handleAfterEdit( QModelIndex index ,QModelIndex index2 ,QVector<int> vector) ;
     void lableClicked(QMouseEvent* event);
+
 
 
     void on_tableView_clicked(const QModelIndex &index);
@@ -85,7 +91,33 @@ private slots:
 
     void on_pushButton_4_clicked();
 
+    void on_pushButton_MainPathOpen_clicked();
+
+    void on_pushButtonSingleFile_clicked();
+
+    void on_pushButton_ErrorPathOpen_clicked();
+
+    void on_pushButton_MainPathBrowse_clicked();
+
+    void on_pushButton_OrginalPathOpen_clicked();
+
+    void on_pushButton_ProcessedPathOpen_clicked();
+
+    void on_pushButton_OrginalPathBrowse_clicked();
+
+    void on_pushButton_ProcessedPathBrowse_clicked();
+
+    void on_pushButton_ErrorPathBrowse_clicked();
+
 private:
+    QSettings mySetting ;
+    const QString DEFAULT_RESULT_PATH_KEY = "defult_result_dir";
+    const QString DEFAULT_ORGINAL_PATH_KEY = "defult_orginal_dir";
+    const QString DEFAULT_PROCESSED_PATH_KEY = "defult_processed_dir";
+    const QString DEFAULT_ERROR_PATH_KEY = "defult_error_dir";
+
+    const QString DEFAULT_OPEN_PATH_KEY = "defult_open_dir";
+
     Ui::OMRProcess *ui;
     AnswerSheet* answerSheet ;
     bool running ;

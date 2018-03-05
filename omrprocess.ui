@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1193</width>
-    <height>890</height>
+    <width>1249</width>
+    <height>930</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -79,113 +79,6 @@
    </item>
    <item row="0" column="0" colspan="2">
     <layout class="QGridLayout" name="gridLayout_3">
-     <item row="0" column="0">
-      <layout class="QFormLayout" name="formLayout_6">
-       <property name="labelAlignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="formAlignment">
-        <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
-       </property>
-       <property name="horizontalSpacing">
-        <number>6</number>
-       </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="Label_4">
-         <property name="text">
-          <string>میسر ذخیره سازی</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="LineEditMain">
-         <property name="text">
-          <string>/home/pouya/Develop/OMR</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="Label">
-         <property name="text">
-          <string>فایل اصلی  </string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="lineEditOrginalPath">
-         <property name="text">
-          <string>/home/pouya/Develop/OMR/Orginal</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="Label_2">
-         <property name="text">
-          <string>فایل پردازش شده</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="lineEditProcessedPath">
-         <property name="text">
-          <string>/home/pouya/Develop/OMR/Processed</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="Label_3">
-         <property name="text">
-          <string>محل ذخیره خطا  </string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="lineEditErrorPath">
-         <property name="text">
-          <string>/home/pouya/Develop/OMR/Error</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>نام جدول</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLineEdit" name="lineEditTableName">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>1</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="comboBoxDbNames">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>1</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButtonOmitTable">
-           <property name="text">
-            <string>حذف جدول</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </item>
      <item row="0" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <property name="leftMargin">
@@ -196,13 +89,6 @@
        </property>
        <item>
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="6" column="1">
-          <widget class="QCheckBox" name="checkBoxDuplicated">
-           <property name="text">
-            <string>نمایش کدهای تکراری</string>
-           </property>
-          </widget>
-         </item>
          <item row="6" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
@@ -306,6 +192,28 @@
              <property name="text">
               <string>پردازش تصویر</string>
              </property>
+             <property name="default">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>1</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>پردازش تصاویر</string>
+             </property>
+             <property name="autoDefault">
+              <bool>false</bool>
+             </property>
+             <property name="default">
+              <bool>false</bool>
+             </property>
             </widget>
            </item>
            <item>
@@ -321,23 +229,14 @@
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QPushButton" name="pushButton">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>1</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>پردازش تصاویر</string>
-             </property>
-             <property name="default">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
           </layout>
+         </item>
+         <item row="6" column="1">
+          <widget class="QCheckBox" name="checkBoxDuplicated">
+           <property name="text">
+            <string>نمایش کدهای تکراری</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -345,6 +244,9 @@
      </item>
      <item row="2" column="1">
       <layout class="QFormLayout" name="formLayout_2"/>
+     </item>
+     <item row="2" column="0">
+      <layout class="QFormLayout" name="formLayout_3"/>
      </item>
      <item row="3" column="0">
       <widget class="QScrollArea" name="scrollArea">
@@ -356,8 +258,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>582</width>
-          <height>690</height>
+          <width>610</width>
+          <height>704</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_10">
@@ -368,6 +270,9 @@
              <horstretch>0</horstretch>
              <verstretch>10</verstretch>
             </sizepolicy>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">border: 2px solid black</string>
            </property>
            <property name="text">
             <string/>
@@ -381,9 +286,6 @@
        </widget>
       </widget>
      </item>
-     <item row="2" column="0">
-      <layout class="QFormLayout" name="formLayout_3"/>
-     </item>
      <item row="3" column="1">
       <widget class="QTableView" name="tableView">
        <property name="sizePolicy">
@@ -395,6 +297,9 @@
        <property name="layoutDirection">
         <enum>Qt::RightToLeft</enum>
        </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
        <property name="selectionMode">
         <enum>QAbstractItemView::ExtendedSelection</enum>
        </property>
@@ -405,6 +310,185 @@
         <bool>false</bool>
        </attribute>
       </widget>
+     </item>
+     <item row="0" column="0">
+      <layout class="QFormLayout" name="formLayout_6">
+       <property name="labelAlignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="formAlignment">
+        <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
+       </property>
+       <property name="horizontalSpacing">
+        <number>6</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="Label_4">
+         <property name="text">
+          <string>میسر ذخیره سازی</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="Label">
+         <property name="text">
+          <string>فایل اصلی  </string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="Label_2">
+         <property name="text">
+          <string>فایل پردازش شده</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="Label_3">
+         <property name="text">
+          <string>محل ذخیره خطا  </string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>نام جدول</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLineEdit" name="lineEditTableName">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBoxDbNames">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonOmitTable">
+           <property name="text">
+            <string>حذف جدول</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_12">
+         <item>
+          <widget class="QLineEdit" name="LineEditMain">
+           <property name="text">
+            <string>/home/pouya/Develop/OMR</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_MainPathBrowse">
+           <property name="text">
+            <string>بازکردن</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_MainPathOpen">
+           <property name="text">
+            <string>انتخاب مسیر</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_13">
+         <item>
+          <widget class="QLineEdit" name="lineEditOrginalPath">
+           <property name="text">
+            <string>/home/pouya/Develop/OMR/Orginal</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_OrginalPathOpen">
+           <property name="text">
+            <string>بازکردن</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_OrginalPathBrowse">
+           <property name="text">
+            <string>انتخاب مسیر</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="3" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_14">
+         <item>
+          <widget class="QLineEdit" name="lineEditProcessedPath">
+           <property name="text">
+            <string>/home/pouya/Develop/OMR/Processed</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_ProcessedPathOpen">
+           <property name="text">
+            <string>بازکردن</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_ProcessedPathBrowse">
+           <property name="text">
+            <string>انتخاب مسیر</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="4" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_15">
+         <item>
+          <widget class="QLineEdit" name="lineEditErrorPath">
+           <property name="text">
+            <string>/home/pouya/Develop/OMR/Error</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_ErrorPathOpen">
+           <property name="text">
+            <string>بازکردن</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_ErrorPathBrowse">
+           <property name="text">
+            <string>انتخاب مسیر</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
