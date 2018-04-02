@@ -340,7 +340,7 @@ int AnswerSheet::findSquares( const cv::Mat& image, std::vector<std::vector<cv::
     {
         cv::approxPolyDP(cv::Mat(contours[i])   , approx, arcLength(cv::Mat(contours[i]), true)*0.10, true);
         if( approx.size() == 4 &&
-                fabs(contourArea(cv::Mat(approx))) > 100 && fabs(contourArea(cv::Mat(approx))) < 600 &&
+                fabs(contourArea(cv::Mat(approx))) > 100 && fabs(contourArea(cv::Mat(approx))) < 800 &&
                 cv::isContourConvex(cv::Mat(approx)) )
         {
             double maxCosine = 0;
@@ -490,8 +490,23 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
         rotateImage(img_resize,angle,left_eye_sheet,right_eye_sheet);
         rotateImage(img_resized_omitcolors,angle);
 
+        double factor1 = (double)(right_eye[0].x - left_eye[0].x ) / (double)(right_eye_sheet[0].x - left_eye_sheet[0].x);
+        double factor2 = (double)(right_eye[eye_number-1].y  - right_eye[0].y ) / (double)(right_eye_sheet[eye_number-1].y - right_eye_sheet[0].y);
+        cv::resize(img_resized_omitcolors,img_resized_omitcolors,cv::Size(),factor1,factor2);
+        cv::resize(img_resize,img_resize,cv::Size(),factor1,factor2);
+
+
+        left_rect = cv::Rect(0,0,pad_rect,img_resize.rows);
+        right_rect = cv::Rect(img_resize.cols-pad_rect,0,pad_rect,img_resize.rows);
+
         int c = findSquares(img_resized_omitcolors, squares_left,left_rect);
         int d = findSquares(img_resized_omitcolors, squares_right,right_rect);
+
+//                    drawSquares(img_resized_omitcolors, left_eye_sheet);
+//                    drawSquares(img_resized_omitcolors, right_eye_sheet);
+//        cv::imwrite("d:/testttt.jpg",img_resized_omitcolors) ;
+//        std::cout << c << std::endl  ;
+//        std::cout << d << std::endl  ;
 
         if(c == d && c == eye_number ) {
             sortSquares(squares_left,left_eye_sheet,LEFT);
@@ -503,24 +518,32 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
             rotateImage(img_resized_omitcolors,angle);
 
 
-//            cv::Point2f srcTri[3];
-//            cv::Point2f dstTri[3];
+//            cv::Point2f srcTri[4];
+//            cv::Point2f dstTri[4];
 
 //            /// Set your 3 points to calculate the  Affine Transform
 //             srcTri[0] = cv::Point2f( left_eye[0].x,left_eye[0].y );
 //             srcTri[1] = cv::Point2f( left_eye[eye_number-1].x,left_eye[eye_number-1].y  );
 //             srcTri[2] = cv::Point2f( right_eye[0].x,right_eye[0].y  );
+//             srcTri[3] = cv::Point2f( right_eye[eye_number-1].x,right_eye[eye_number-1].y  );
 
 //             dstTri[0] = cv::Point2f( left_eye_sheet[0].x,left_eye_sheet[0].y );
 //             dstTri[1] = cv::Point2f( left_eye_sheet[eye_number-1].x,left_eye_sheet[eye_number-1].y  );
 //             dstTri[2] = cv::Point2f( right_eye_sheet[0].x,right_eye_sheet[0].y  );
+//             srcTri[3] = cv::Point2f( left_eye_sheet[eye_number-1].x,right_eye_sheet[eye_number-1].y  );
+
+
 
 //            /// Get the Affine Transform
 //            cv::Mat warp_mat = getAffineTransform( srcTri, dstTri );
 
+
 //            /// Apply the Affine Transform just found to the src image
-//            cv::warpAffine( img_resize, img_resize, warp_mat, resize_size );
+//            cv::warpAffine( img_resize, img_resize, warp_mat, resize_size , cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(255));
 //            cv::warpAffine( img_resized_omitcolors, img_resized_omitcolors, warp_mat, resize_size );
+//            cv::imwrite("d:/testttt.jpg",img_resize) ;
+
+
 
 //            drawSquares(img_resize, left_eye_sheet);
 //            drawSquares(img_resize, right_eye_sheet);
