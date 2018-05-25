@@ -172,15 +172,9 @@ void OMRProcess::setAnswerSheet(AnswerSheet* answerSheet_) {
 
 
 cv::Mat OMRProcess::ProcessImage(cv::String imagePath,std::string pathOrginal,std::string pathProcessed,std::string pathError,int thread_no)  {
-    const cv::Mat image = cv::imread(imagePath);
-    if(image.empty())
-    {
-        std::cout << "can not open " << imagePath << "\n";
-        return cv::Mat();
-    }
 
 
-    cv::Mat process_image = answerSheet->ProcessImage(image,ui->lineEditTableName->text(),pathOrginal,pathProcessed,pathError,thread_no) ;
+    cv::Mat process_image = answerSheet->ProcessImage(imagePath,ui->lineEditTableName->text(),pathOrginal,pathProcessed,pathError,thread_no) ;
     return process_image ;
 
 }

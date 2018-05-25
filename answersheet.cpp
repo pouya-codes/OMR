@@ -4,7 +4,6 @@
 #include <asmOpenCV.h>
 
 
-
 cv::Mat image,image_resized,orginal_img ,removed_color_img,empty;
 const char* wndname = "Remove Colors";
 std::vector<std::vector<cv::Vec3b>> omit_colors ;
@@ -340,7 +339,7 @@ int AnswerSheet::findSquares( const cv::Mat& image, std::vector<std::vector<cv::
     {
         cv::approxPolyDP(cv::Mat(contours[i])   , approx, arcLength(cv::Mat(contours[i]), true)*0.10, true);
         if( approx.size() == 4 &&
-                fabs(contourArea(cv::Mat(approx))) > 100 && fabs(contourArea(cv::Mat(approx))) < 800 &&
+                fabs(contourArea(cv::Mat(approx))) > 50 && fabs(contourArea(cv::Mat(approx))) < 1000 &&
                 cv::isContourConvex(cv::Mat(approx)) )
         {
             double maxCosine = 0;
@@ -456,7 +455,16 @@ void AnswerSheet::rotateRect(cv::Rect& rect, const cv::Mat & rot)
 
 }
 
-cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::string out_path_orginal,std::string out_path_processd,std::string out_path_error,int thread_no){
+cv::Mat AnswerSheet::ProcessImage (cv::String imagePath,QString table_name,std::string out_path_orginal,std::string out_path_processd,std::string out_path_error,int thread_no){
+    const cv::Mat img_process = cv::imread(imagePath);
+    if(img_process.empty())
+    {
+        std::string file_name = out_path_error+ currentDateTime()+"_"+std::to_string(thread_no) + ".jpg";
+        QFile::copy(QString::fromStdString(imagePath), QString::fromStdString(file_name));
+        std::cout << "can not open " << imagePath << "\n";
+        return empty;
+    }
+
     AnswerSheet::OMRResult OMRresult ;
 
     cv::Mat img_resize,img_resized_omitcolors,img_resize_out ;
@@ -555,8 +563,9 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
         }
         else {
             std::string file_name ;
-            file_name = out_path_error+ currentDateTime() + ".jpg";
-            cv::imwrite(file_name,img_process) ;
+            file_name = out_path_error+ currentDateTime()+"_"+ std::to_string(thread_no) + ".jpg";
+            QFile::copy(QString::fromStdString(imagePath), QString::fromStdString(file_name));
+//            cv::imwrite(file_name,img_process) ;
             return  empty;
         }
 
@@ -566,26 +575,28 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
 
         //        cv::Mat(img_process(cv::Rect(barcodeX*resize_factor,barcodeY*resize_factor,barcodeWidth*resize_factor,barcodeHeight*resize_factor))).copyTo(gray_barcode);
         cv::Mat(img_resized_omitcolors(cv::Rect(barcodeX,barcodeY,barcodeWidth,barcodeHeight))).copyTo(gray_barcode);
-                cv::cvtColor(gray_barcode,gray_barcode,cv::COLOR_BGR2GRAY) ;
+//                cv::cvtColor(gray_barcode,gray_barcode,cv::COLOR_BGR2GRAY) ;
 //        cv::threshold(gray_barcode,gray_barcode,200,255,cv::THRESH_BINARY);
 //        cv::imshow("sa",gray_barcode) ;
 //        cv::waitKey(0);
 
-
+        std::unique_lock<std::mutex> lck (mtx,std::defer_lock);
+        lck.lock();
         QZXing decoder;
         //        decoder.setDecoder(QZXing::DecoderFormat_QR_CODE | QZXing::DecoderFormat_CODE_128 );
         decoder.setDecoder(QZXing::DecoderFormat_QR_CODE  );
         //        decoder.setDecoder(QZXing::DecoderFormat_None );
-        cv::imwrite("D:/barcode.jpg",gray_barcode);
+//        cv::imwrite("D:/barcode.jpg",gray_barcode);
 
         barcode = decoder.decodeImage(ASM::cvMatToQImage(gray_barcode)).toStdString();
+        lck.unlock();
 
         if (barcode.size() != 0) {
             fileName = barcode+ ".jpg";
-            cv::putText(img_resize_out, barcode, cv::Point(barcodeX,(barcodeY+barcodeHeight)/2), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar( 255, 0, 0 ),2);
+            cv::putText(img_resize_out, barcode, cv::Point(barcodeX,(barcodeY+barcodeY+barcodeHeight)/2), cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar( 255, 0, 0 ),2);
         }
         else {
-            fileName= currentDateTime() + std::to_string(thread_no) + ".jpg" ;
+            fileName= currentDateTime() +"_"+ std::to_string(thread_no) + ".jpg" ;
         }
 
         //save orginal and processed file
@@ -616,8 +627,9 @@ cv::Mat AnswerSheet::ProcessImage (cv::Mat img_process,QString table_name,std::s
     }
     else {
         std::string file_name ;
-        file_name = out_path_error+ currentDateTime() + ".jpg";
-        cv::imwrite(file_name,img_process) ;
+        file_name = out_path_error+ currentDateTime()+"_"+std::to_string(thread_no) + ".jpg";
+        QFile::copy(QString::fromStdString(imagePath), QString::fromStdString(file_name));
+//        cv::imwrite(file_name,img_process) ;
         return  empty;
 
     }

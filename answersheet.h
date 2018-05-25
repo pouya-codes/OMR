@@ -10,6 +10,8 @@
 #include <QDir>
 #include <QObject>
 #include <QString>
+#include <thread>
+#include <mutex>
 
 enum eye_pose {LEFT, RIGHT,BOTH };
 
@@ -32,7 +34,7 @@ public:
                          int choiceNumber, int distanceChoiceChoice, int numberOfQuestions, int columnDistance,
                          int barcodeX_,int barcodeY_,int barcodeWidth_,int barcodeHeight_,bool row_question_order_,int rowDistance_,
                          bool has_code_,int code_refrenceEye_,int code_numCode_,int code_distanceWidth_,int code_distanceHeight_, int code_distanceChoice_) ;
-    cv::Mat ProcessImage (cv::Mat img_process,QString table_name,std::string out_path_orginal,std::string out_path_processd,std::string out_path_error,int thread_no);
+    cv::Mat ProcessImage (cv::String imagePath,QString table_name,std::string out_path_orginal,std::string out_path_processd,std::string out_path_error,int thread_no);
     bool createTable(QString tableName) ;
     bool deleteTable(QString tableName) ;
     bool clearTable(QString tableName) ;
@@ -41,6 +43,7 @@ public:
 
 
 private :
+    std::mutex mtx;
     void omitColors(cv::Mat& img);
     void RemoveColorsDialog () ;
     int findSquares( const cv::Mat& image, std::vector<std::vector<cv::Point> >& squares,cv::Rect area );
