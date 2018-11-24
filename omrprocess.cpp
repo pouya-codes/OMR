@@ -1,5 +1,4 @@
 #include "omrprocess.h"
-//bool riyazi = true ;
 
 OMRProcess::OMRProcess(QWidget *parent) :
     QDialog(parent),
@@ -174,7 +173,7 @@ void OMRProcess::setAnswerSheet(AnswerSheet* answerSheet_) {
 cv::Mat OMRProcess::ProcessImage(cv::String imagePath,std::string pathOrginal,std::string pathProcessed,std::string pathError,int thread_no)  {
 
 
-    cv::Mat process_image = answerSheet->ProcessImage(imagePath,ui->lineEditTableName->text(),pathOrginal,pathProcessed,pathError,thread_no) ;
+    cv::Mat process_image = answerSheet->ProcessImage(imagePath,ui->lineEditTableName->text(),pathOrginal,pathProcessed,pathError,thread_no,ui->checkBox_omitProcessedFile->isChecked()) ;
     return process_image ;
 
 }
@@ -220,7 +219,8 @@ void OMRProcess::ProcessImagePath(std::string path,std::string pathOrginal,std::
                 break ;
             cv::Mat resultImage =ProcessImage(fn[filecounter],pathOrginal,pathProcessed,pathError,0) ;
             if ( !resultImage.empty()) {
-                cv::resize(resultImage, resultImage,cv::Size(ui->label->width(),ui->label->height())) ;
+//                cv::resize(resultImage, resultImage,cv::Size(ui->label->width(),ui->label->height())) ;
+                cv::resize(resultImage, resultImage,cv::Size(592,686)) ;
                 QImage qt_img = ASM::cvMatToQImage( resultImage );
                 ui->label->setPixmap(QPixmap::fromImage(qt_img));
                 ui->labelStatus->setText("تعداد کل فایل ها: "+QString::number(count)+" , پردازش شده:"+QString::number(filecounter+1)+" , باقی مانده:"+QString::number(count- filecounter-1));
@@ -234,6 +234,7 @@ void OMRProcess::ProcessImagePath(std::string path,std::string pathOrginal,std::
 }
 
 void OMRProcess::getTableNames() {
+    QString table_name =  mySetting.value(DEFAULT_DBNAME_KEY).toString() ;
     ui->comboBoxDbNames->clear();
     QSqlQuery query;
     query.exec("SELECT name FROM sqlite_master WHERE type = 'table' and name!='sqlite_sequence'");
@@ -241,7 +242,7 @@ void OMRProcess::getTableNames() {
         QString tb_name = query.value(0).toString();
         ui->comboBoxDbNames->addItem(tb_name);
     };
-
+    ui->comboBoxDbNames->setCurrentIndex(ui->comboBoxDbNames->findText(table_name)) ;
 }
 
 std::string createRecurciveDirectory(QString path) {
@@ -384,6 +385,7 @@ void OMRProcess::on_comboBoxDbNames_currentIndexChanged(const QString &arg1)
 {
     if (!running)ui->lineEditTableName->setText(arg1);
     queryData();
+    mySetting.setValue(DEFAULT_DBNAME_KEY,arg1) ;
 
 }
 

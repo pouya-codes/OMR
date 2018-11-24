@@ -28,13 +28,13 @@ class AnswerSheet
 public:
     AnswerSheet(cv::Mat img);
     cv::Mat RemoveColors () ;
-    void DetectEyes (int pad_rectangle, int darkness_threshold) ;
+    void DetectEyes (int pad_rectangle, int darkness_threshold,int min_squre, int max_squre) ;
     cv::Mat getImage();
     cv::Mat DrawChoices (int referenceEye,int distanceWidth,int distanceHeight,int choiceWidth,int choiceHeight,
                          int choiceNumber, int distanceChoiceChoice, int numberOfQuestions, int columnDistance,
                          int barcodeX_,int barcodeY_,int barcodeWidth_,int barcodeHeight_,bool row_question_order_,int rowDistance_,
                          bool has_code_,int code_refrenceEye_,int code_numCode_,int code_distanceWidth_,int code_distanceHeight_, int code_distanceChoice_) ;
-    cv::Mat ProcessImage (cv::String imagePath,QString table_name,std::string out_path_orginal,std::string out_path_processd,std::string out_path_error,int thread_no);
+    cv::Mat ProcessImage (cv::String imagePath,QString table_name,std::string out_path_orginal,std::string out_path_processd,std::string out_path_error,int thread_no, bool remove_processed_file);
     bool createTable(QString tableName) ;
     bool deleteTable(QString tableName) ;
     bool clearTable(QString tableName) ;

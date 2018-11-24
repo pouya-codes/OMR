@@ -80,7 +80,7 @@ void CreateForm::on_pb_removeColors_clicked()
 
 void CreateForm::on_pb_findEyes_clicked()
 {
-    answerSheet->DetectEyes(ui->le_EyePad->text().toInt(),ui->le_darkness->text().toInt()) ;
+    answerSheet->DetectEyes(ui->le_EyePad->text().toInt(),ui->le_darkness->text().toInt(),ui->spinBox_min_squre->text().toInt(),ui->spinBox_max_squre->text().toInt()) ;
     cv::resize(answerSheet->getImage(), resized_img_cv,cv::Size(ui->label_image->width(),ui->label_image->height())) ;
     qt_img = ASM::cvMatToQImage(resized_img_cv);
     ui->label_image->setPixmap(QPixmap::fromImage(qt_img));

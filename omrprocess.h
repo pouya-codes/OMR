@@ -115,6 +115,7 @@ private:
     const QString DEFAULT_ORGINAL_PATH_KEY = "defult_orginal_dir";
     const QString DEFAULT_PROCESSED_PATH_KEY = "defult_processed_dir";
     const QString DEFAULT_ERROR_PATH_KEY = "defult_error_dir";
+    const QString DEFAULT_DBNAME_KEY = "defult_db_name";
 
     const QString DEFAULT_OPEN_PATH_KEY = "defult_open_dir";
 

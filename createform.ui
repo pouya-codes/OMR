@@ -133,13 +133,6 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QRadioButton" name="radioButton_3">
-          <property name="text">
-           <string>سمت چپ</string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="3">
          <widget class="QLabel" name="label">
           <property name="sizePolicy">
@@ -166,6 +159,30 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="0">
+         <widget class="QRadioButton" name="radioButton_3">
+          <property name="text">
+           <string>سمت چپ</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QLabel" name="label_16">
+          <property name="text">
+           <string>محل قرارگیری چشم ها</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QPushButton" name="pb_findEyes">
+          <property name="text">
+           <string>یافتن چشم ها</string>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="0">
          <widget class="QSpinBox" name="le_darkness">
           <property name="sizePolicy">
@@ -188,22 +205,59 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0" colspan="2">
-         <widget class="QPushButton" name="pb_findEyes">
-          <property name="text">
-           <string>یافتن چشم ها</string>
-          </property>
-         </widget>
+        <item row="2" column="2">
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QSpinBox" name="spinBox_max_squre">
+            <property name="minimum">
+             <number>50</number>
+            </property>
+            <property name="maximum">
+             <number>2000</number>
+            </property>
+            <property name="singleStep">
+             <number>50</number>
+            </property>
+            <property name="value">
+             <number>1000</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_19">
+            <property name="text">
+             <string>حداکثر سایز چشم</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
-        <item row="0" column="3">
-         <widget class="QLabel" name="label_16">
-          <property name="text">
-           <string>محل قرارگیری چشم ها</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
+        <item row="2" column="3">
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QSpinBox" name="spinBox_min_squre">
+            <property name="minimum">
+             <number>50</number>
+            </property>
+            <property name="maximum">
+             <number>500</number>
+            </property>
+            <property name="singleStep">
+             <number>50</number>
+            </property>
+            <property name="value">
+             <number>100</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_20">
+            <property name="text">
+             <string>حداقل سایز چشم</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
